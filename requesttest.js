@@ -77,12 +77,14 @@ const options2 = {
   */
 
   //get historical weather data between dates
+  
   let cityLat = 24.86;
   let cityLon = 67.01;
   let startDate = '2020-04-01';
   let endDate = '2020-04-07';
   let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
   console.log(weatherDataCoords);
+  /*
   const optionsHistoricWeather = {
     method: 'GET',
     url: 'https://visual-crossing-weather.p.rapidapi.com/history',
@@ -101,6 +103,7 @@ const options2 = {
     }
   };
   
+  ley historicalDates = [];
   let historicalLowTemps = [];
   let historicalHighTemps = [];
   let historicalPrecip = [];
@@ -113,7 +116,8 @@ const options2 = {
         console.log("day data:");
         //console.log(historicalData[day]);
         let date = historicalData[day].datetimeStr.toString().substring(0,10);
-        console.log("date:", date);
+        console.log("\ndate:", date);
+        historicalDates.push(date);
 
         let lowTemp = historicalData[day].mint;
         console.log("low temp:", lowTemp);
@@ -132,7 +136,7 @@ const options2 = {
         historicalConditions.push(conditions);
     }
 
-    //compue averages
+    //compute averages
     let avgLowTemp = arrayAvg(historicalLowTemps);
     let avgHighTemp = arrayAvg(historicalHighTemps);
     let avgPrecip = arrayAvg(historicalPrecip);
@@ -141,8 +145,65 @@ const options2 = {
   }).catch(function (error) {
       console.error(error);
   });
+  */
+  //get forecast
+  let futureDates = []
+  let futureLowTemps = [];
+  let futureHighTemps = [];
+  let futurePrecip = [];
+  let futureConditions = [];
+    const forecastOptions = {
+    method: 'GET',
+    url: 'https://visual-crossing-weather.p.rapidapi.com/forecast',
+    params: {
+        aggregateHours: '24',
+        location: weatherDataCoords,
+        contentType: 'json',
+        unitGroup: 'us',
+        shortColumnNames: '0'
+    },
+    headers: {
+        'X-RapidAPI-Host': 'visual-crossing-weather.p.rapidapi.com',
+        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+    }
+    };
 
+    axios.request(forecastOptions).then(function (response) {
+        console.log(response.data);
+        const resp = response.data;
+        let forecastData = resp.locations[weatherDataCoords].values;
+        //console.log(forecastDatas[day]);
+        for(day in forecastData){
+            let date = forecastData[day].datetimeStr.toString().substring(0,10);
+            console.log("\ndate:", date);
+            futureDates.push(date);
 
+            let lowTemp = forecastData[day].mint;
+            console.log("low temp:", lowTemp);
+            futureLowTemps.push(lowTemp);
+
+            let maxTemp = forecastData[day].maxt;
+            console.log("high temp:", maxTemp);
+            futureHighTemps.push(maxTemp);
+
+            let precipitation = forecastData[day].precip;
+            console.log("precipitation: ", precipitation);
+            futurePrecip.push(precipitation);
+
+            let conditions = forecastData[day].conditions;
+            console.log("conditions: ", conditions);
+            futureConditions.push(conditions);
+        }
+
+        //compue averages
+        let avgLowTemp = arrayAvg(futureLowTemps);
+        let avgHighTemp = arrayAvg(futureHighTemps);
+        let avgPrecip = arrayAvg(futurePrecip);
+        console.log("\navgs:", avgLowTemp, avgHighTemp, avgPrecip);
+        
+    }).catch(function (error) {
+        console.error(error);
+    });
 
 
 
