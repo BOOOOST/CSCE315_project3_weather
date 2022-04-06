@@ -1,7 +1,11 @@
+const axios = require("axios");
+
+//sleep for ms millisec
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+//returns average value of array
 function arrayAvg(array){
     total = 0
     for(let i = 0; i < array.length; i++){
@@ -9,9 +13,9 @@ function arrayAvg(array){
     }
     return total/array.length;
 }
+
 let geoDBhost = 'wft-geo-db.p.rapidapi.com';
 let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
-const axios = require("axios");
 
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
@@ -36,6 +40,7 @@ function getCountryData(countryCode){
     });
 }
 
+// # TODO: this gives multiple options for cities with matching names, let user pick with index
 //search for city and get its data with searchCity (string) and ISO country code (string)
 function getCityData(searchCity, countryCode){
     const options2 = {
@@ -174,10 +179,8 @@ function getForecast(cityLat, cityLon){
     let avgHighTemp = 200;
     let avgPrecip = 200;
     axios.request(forecastOptions).then(function (response) {
-        //console.log(response.data);
         const resp = response.data;
         let forecastData = resp.locations[weatherDataCoords].values;
-        //console.log(forecastDatas[day]);
         for(day in forecastData){
             let date = forecastData[day].datetimeStr.toString().substring(0,10);
             console.log("\ndate:", date);
@@ -229,7 +232,6 @@ function getCurrencyConversion(baseCurrency, countryCurrencies){
         console.log(countryCurrencies[i]);
         console.log(resp.rates[countryCurrencies[i]]);
       }
-      //console.log(response.data);
     }).catch(function (error) {
       console.error(error);
     });
