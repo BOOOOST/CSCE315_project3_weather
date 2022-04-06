@@ -13,6 +13,7 @@ let geoDBhost = 'wft-geo-db.p.rapidapi.com';
 let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 const axios = require("axios");
 
+//get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
     const options = {
     method: 'GET',
@@ -35,7 +36,7 @@ function getCountryData(countryCode){
     });
 }
 
-//search for city and get its data
+//search for city and get its data with searchCity (string) and ISO country code (string)
 function getCityData(searchCity, countryCode){
     const options2 = {
         method: 'GET',
@@ -73,6 +74,7 @@ function getCityData(searchCity, countryCode){
 
 //get historical weather data between dates
 //date format: yyyy-mm-dd ('2020-04-01')
+//cityLat, cityLon are latitude, loingtitude as float, start date, end date are date range to get weather
 function historicalWeather(cityLat, cityLon, startDate, endDate){
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     console.log("getting historical weather for:", weatherDataCoords);
@@ -144,6 +146,7 @@ function historicalWeather(cityLat, cityLon, startDate, endDate){
     return [avgLowTemp, avgHighTemp, avgPrecip];
 }
 
+//get forecast with cityLat, cityLon (latitude, longtitude) as float
 function getForecast(cityLat, cityLon){
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     let futureDates = []
@@ -209,7 +212,7 @@ function getForecast(cityLat, cityLon){
     return [avgLowTemp, avgHighTemp, avgPrecip];
 }
 
-//base currency is string for currency symbol, countryCurrencies is array of strings
+//baseCurrency is string for currency symbol ('USD'), countryCurrencies is array of strings with currency symbols (['GBP'])
 function getCurrencyConversion(baseCurrency, countryCurrencies){
     const currencyOptions = {
       method: 'GET',
