@@ -1,4 +1,4 @@
-const axios = require("axios");
+var axios = require("axios");
 
 //sleep for ms millisec
 function sleep(ms) {
@@ -14,10 +14,10 @@ function arrayAvg(array){
     return total/array.length;
 }
 
-let geoDBhost = 'wft-geo-db.p.rapidapi.com';
-let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
-let weatherHost = 'visual-crossing-weather.p.rapidapi.com';
-let weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
+var geoDBhost = 'wft-geo-db.p.rapidapi.com';
+var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
+var weatherHost = 'visual-crossing-weather.p.rapidapi.com';
+var weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
@@ -240,7 +240,7 @@ function getCurrencyConversion(baseCurrency, countryCurrencies){
 }
 
 //getCountryData('US');
-getCityData('Dallas', 'US');
+//getCityData('Dallas', 'US');
 //getForecast(32.77, 96.78);
 //historicalWeather(32.77, 96.78, '2021-03-08', '2021-03-15')
-getCurrencyConversion('USD', ['RUB', 'PKR']);
+//getCurrencyConversion('USD', ['RUB', 'PKR']);

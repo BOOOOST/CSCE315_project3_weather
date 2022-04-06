@@ -2,9 +2,10 @@
 <html>
     <head>
         <script src="index.js"></script>
+        <script src="requesttest.js"></script>
         <script>
             window.onload = function() {
-            console.log("hey");
+            console.log("loading");
             let today = getCurrentDate();
             document.getElementById("startDate").setAttribute("min", today);
             document.getElementById("startDate").setAttribute("value", today);
@@ -27,7 +28,7 @@
         <h2>Enter a destination</h2>
         <input type="text" placeholder="City Name">
         <!-- All countries -->
-    <select id="country" name="Country" onchange=setCountryCode()>
+    <select id="country" name="Country" onchange=getCountryCode()>
         <option>country</option>
         <option value="AF">Afghanistan</option>
         <option value="AX">Aland Islands</option>
@@ -285,7 +286,7 @@
 
         <!--DESTINATION INPUT-->
         <!-- #TODO: limit end date to get date range -->
-        <h1></h1>
+        <br>
         <h2>Timespan</h2>
         <label for="startDate">Trip Start Date:</label>
         <input type="date" id="startDate" onchange=setMinEndDate()></input>
@@ -304,6 +305,6 @@
         <label for="clothing"> Clothing Recommendations </label><br>
 
         <!--Submit Button-->
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit" onclick=getCountryData(getCountryCode())>
     </body>
 </html>

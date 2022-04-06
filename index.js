@@ -34,7 +34,8 @@ function setMinEndDate(){
   return minEndDay;
 }
 
-function setCountryCode(){
+function getCountryCode(){
   let countryCode = document.getElementById("country").value;
   console.log(countryCode);
+  return countryCode;
 }
