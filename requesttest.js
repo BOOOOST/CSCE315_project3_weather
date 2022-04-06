@@ -26,12 +26,14 @@ function getCountryData(countryCode){
     url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
     responseType: 'JSON',
     headers: {
-        'X-RapidAPI-Host': geoDBhost,
-        'X-RapidAPI-Key': geoDBkey
+        'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com',
+        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
     }
     };
 
+    console.log("country data for:",countryCode);
     axios.request(options).then(function (response) {
+        console.log("country data response");
         const resp = response.data;
         console.log("name: " + resp.data.name);
         console.log("capital: " + resp.data.capital);
