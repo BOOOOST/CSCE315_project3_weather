@@ -9,9 +9,18 @@ function arrayAvg(array){
     }
     return total/array.length;
 }
+
+function test(){
+  console.log("HELLO");
+}
+
 let geoDBhost = 'wft-geo-db.p.rapidapi.com';
 let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 const axios = require("axios");
+
+var today = new Date();
+console.log(today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDay());
+
 
 //get country data
 /*
@@ -75,10 +84,10 @@ const options2 = {
   }).catch(function (error) {
       console.error(error);
   });
-  */
+  
 
   //get historical weather data between dates
-  /*
+  
   let cityLat = 24.86;
   let cityLon = 67.01;
   let startDate = '2020-04-01';
@@ -143,9 +152,7 @@ const options2 = {
   }).catch(function (error) {
       console.error(error);
   });
-*/
-
-console.log("Hello");
+  */
 
 
 
