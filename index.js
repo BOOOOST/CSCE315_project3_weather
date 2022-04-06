@@ -12,5 +12,5 @@ app.get('/', (req, res) => {
 app.use(express.static(__dirname + "/../csce315_project3"));
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`TravelSight listening on port ${port}`)
 })
