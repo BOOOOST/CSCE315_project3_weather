@@ -7,25 +7,26 @@
         <div class = "NavBar">
             <h1>Travel Sight</h1>
             <ul>
-                <div class = "NavBarService"><li ><a href = "#about.html"> About </a></li></div>
-                <div class = "NavBarQualifications"><li><a href = "index.html"> Home </a></li></div>
+                <div class = "NavBarAbout"><li ><a href = "#about.html"> About </a></li></div>
+                <div class = "NavBarIndex"><li><a href = "index.html"> Home </a></li></div>
             </ul>
         </div>
 
         <!--DESTINATION INPUT-->
-        <h1>Enter a destination</h1>
+        <h2>Enter a destination</h2>
         <input type="text" placeholder="Search..">
 
         <!--DESTINATION INPUT-->
+        <!-- #TODO: limit end date to get date range -->
         <h1></h1>
-        <h1>Timespan</h1>
+        <h2>Timespan</h2>
         <label for="startDate">Trip Start Date:</label>
         <input type="date" id="startDate"></input>
         <label for="endDate">&emsp;Trip End Date:</label>
-        <input type="date" id="endDate"></input>
+        <input type="date" id="endDate" min="2022-04-06"></input>
 
         <!--CHECKBOX-->
-        <h1>Select what you would like to know</h1>
+        <h2>Select what you would like to know</h2>
         <input type="checkbox" id="weather" name="weather" value="Weather">
         <label for="weather">Weather</label><br>
         <input type="checkbox" id="crime" name="crime" value="Crime">
