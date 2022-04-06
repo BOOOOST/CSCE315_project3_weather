@@ -146,7 +146,7 @@ const options2 = {
   }).catch(function (error) {
       console.error(error);
   });
-  */
+  
   //get forecast
   let futureDates = []
   let futureLowTemps = [];
@@ -170,7 +170,7 @@ const options2 = {
     };
 
     axios.request(forecastOptions).then(function (response) {
-        console.log(response.data);
+        //console.log(response.data);
         const resp = response.data;
         let forecastData = resp.locations[weatherDataCoords].values;
         //console.log(forecastDatas[day]);
@@ -205,7 +205,27 @@ const options2 = {
     }).catch(function (error) {
         console.error(error);
     });
-
-
+*/
+    baseCurrency = 'USD';
+    countryCurrencies = ['PKR', 'GBP'];
+    const currencyOptions = {
+      method: 'GET',
+      url: 'https://exchangerate-api.p.rapidapi.com/rapid/latest/' + baseCurrency,
+      headers: {
+        'X-RapidAPI-Host': 'exchangerate-api.p.rapidapi.com',
+        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+      }
+    };
+    
+    axios.request(currencyOptions).then(function (response) {
+      const resp = response.data;
+      for (let i = 0; i < countryCurrencies.length; i++){
+        console.log(countryCurrencies[i]);
+        console.log(resp.rates[countryCurrencies[i]]);
+      }
+      //console.log(response.data);
+    }).catch(function (error) {
+      console.error(error);
+    });
 
 
