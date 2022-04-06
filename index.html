@@ -1,18 +1,44 @@
 <!DOCTYPE html>
 <html>
-    <script src = "/requesttest.js"></script>
     <head>
-        <script src="index.js"></script>
-        <script src="requesttest.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script>
-            window.onload = function() {
-            console.log("loading");
-            let today = getCurrentDate();
-            document.getElementById("startDate").setAttribute("min", today);
-            document.getElementById("startDate").setAttribute("value", today);
-            document.getElementById("endDate").setAttribute("value", today);
+            var geoDBhost = 'wft-geo-db.p.rapidapi.com';
+            var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
+            var weatherHost = 'visual-crossing-weather.p.rapidapi.com';
+            var weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 
-            };
+            //get country data with ISO country code as string (US, PK, etc)
+            function getCountryData(countryCode){
+                var result = document.getElementById("result");
+                const options = {
+                method: 'GET',
+                url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
+                responseType: 'JSON',
+                headers: {
+                    'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com',
+                    'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+                }
+                };
+                
+                console.log("country data for:",countryCode);
+                axios.request(options).then(function (response) {
+                    console.log("country data response");
+                    const resp = response.data;
+                    console.log("name: " + resp.data.name);
+                    console.log("capital: " + resp.data.capital);
+                    console.log("calling code: " + resp.data.callingCode);
+                    console.log("flagUrl: " + resp.data.flagImageUri);
+                    result.innerHTML = JSON.stringify(response.data);
+                }).catch(function (error) {
+                console.error(error);
+                });
+            }
+
+            function getCountryCode(){
+                var elem = document.getElementById("country");
+                return elem.value;
+            }
         </script>
     </head>
     <body>
@@ -30,7 +56,7 @@
         <h2>Enter a destination</h2>
         <input type="text" placeholder="City Name">
         <!-- All countries -->
-    <select id="country" name="Country" onchange=getCountryCode()>
+    <select id="country" name="Country">
         <option>country</option>
         <option value="AF">Afghanistan</option>
         <option value="AX">Aland Islands</option>
@@ -308,5 +334,7 @@
 
         <!--Submit Button-->
         <input type="submit" value="Submit" onclick=getCountryData(getCountryCode())>
+
+        <div id="result"></div>
     </body>
 </html>
