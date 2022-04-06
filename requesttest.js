@@ -14,27 +14,25 @@ let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 const axios = require("axios");
 
 function getCountryData(countryCode){
-  const options = {
+    const options = {
     method: 'GET',
     url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
     responseType: 'JSON',
     headers: {
-      'X-RapidAPI-Host': geoDBhost,
-      'X-RapidAPI-Key': geoDBkey
+        'X-RapidAPI-Host': geoDBhost,
+        'X-RapidAPI-Key': geoDBkey
     }
-  };
+    };
 
-  axios.request(options).then(function (response) {
-      const resp = response.data;
-      console.log("name: " + resp.data.name);
-      console.log("capital: " + resp.data.capital);
-      console.log("calling code: " + resp.data.callingCode);
-      console.log("flagUrl: " + resp.data.flagImageUri);
-      console.log("=== start ===")
-      console.log("=== end ===")
-  }).catch(function (error) {
+    axios.request(options).then(function (response) {
+        const resp = response.data;
+        console.log("name: " + resp.data.name);
+        console.log("capital: " + resp.data.capital);
+        console.log("calling code: " + resp.data.callingCode);
+        console.log("flagUrl: " + resp.data.flagImageUri);
+    }).catch(function (error) {
     console.error(error);
-  });
+    });
 }
 
 //search for city and get its data
@@ -73,8 +71,8 @@ function getCityData(searchCity, countryCode){
     return [cityLat, cityLon];
 }
 
-  //get historical weather data between dates
-  //date format: yyyy-mm-dd ('2020-04-01')
+//get historical weather data between dates
+//date format: yyyy-mm-dd ('2020-04-01')
 function historicalWeather(cityLat, cityLon, startDate, endDate){
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     console.log("getting historical weather for:", weatherDataCoords);
@@ -234,6 +232,8 @@ function getCurrencyConversion(baseCurrency, countryCurrencies){
     });
 }
 
-historicalWeather(32.77, 96.78, '2021-03-08', '2021-03-15')
+//getCountryData('US');
+getCityData('Dallas', 'US');
+//getForecast(32.77, 96.78);
+//historicalWeather(32.77, 96.78, '2021-03-08', '2021-03-15')
 getCurrencyConversion('USD', ['RUB', 'PKR']);
-
