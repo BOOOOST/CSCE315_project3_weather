@@ -14,14 +14,59 @@ function arrayAvg(array){
     return total/array.length;
 }
 
+<<<<<<< HEAD
+=======
+function test(){
+  console.log("HELLO");
+}
+
+>>>>>>> SamisBranch
 let geoDBhost = 'wft-geo-db.p.rapidapi.com';
 let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 let weatherHost = 'visual-crossing-weather.p.rapidapi.com';
 let weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 
+<<<<<<< HEAD
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
     const options = {
+=======
+var today = new Date();
+console.log(today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDay());
+
+
+//get country data
+/*
+const options = {
+  method: 'GET',
+  url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/PK',
+  responseType: 'JSON',
+  headers: {
+    'X-RapidAPI-Host': geoDBhost,
+    'X-RapidAPI-Key': geoDBkey
+  }
+};
+
+axios.request(options).then(function (response) {
+    const resp = response.data;
+    console.log("name: " + resp.data.name);
+    console.log("capital: " + resp.data.capital);
+    console.log("calling code: " + resp.data.callingCode);
+    console.log("flagUrl: " + resp.data.flagImageUri);
+    console.log("=== start ===")
+	console.log(response.data);
+    console.log("=== end ===")
+}).catch(function (error) {
+	console.error(error);
+});
+*/
+/*
+//search for city and get its data
+let countryCode = 'PK'
+let searchCity = 'Karachi'
+sleep(1500);
+const options2 = {
+>>>>>>> SamisBranch
     method: 'GET',
     url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
     responseType: 'JSON',
@@ -29,6 +74,7 @@ function getCountryData(countryCode){
         'X-RapidAPI-Host': geoDBhost,
         'X-RapidAPI-Key': geoDBkey
     }
+<<<<<<< HEAD
     };
 
     axios.request(options).then(function (response) {
@@ -87,6 +133,37 @@ function historicalWeather(cityLat, cityLon, startDate, endDate){
     console.log("getting historical weather for:", weatherDataCoords);
 
     const optionsHistoricWeather = {
+=======
+  };
+  
+  let cityLat = 24.86;
+  let cityLon = 67.01;
+  axios.request(options2).then(function (response) {
+      const resp = response.data;
+      let idx = 0;
+      console.log("name:", resp.data[idx].name);
+      console.log("state/province:", resp.data[idx].region);
+      cityLat = resp.data[idx].latitude;
+      console.log("lat:", cityLat);
+      cityLon = resp.data[idx].longitude;
+      console.log("lon:", cityLon);
+      console.log("population:", resp.data[idx].population);
+      //console.log(response.data);
+  }).catch(function (error) {
+      console.error(error);
+  });
+  
+
+  //get historical weather data between dates
+  
+  let cityLat = 24.86;
+  let cityLon = 67.01;
+  let startDate = '2020-04-01';
+  let endDate = '2020-04-07';
+  let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
+  console.log(weatherDataCoords);
+  const optionsHistoricWeather = {
+>>>>>>> SamisBranch
     method: 'GET',
     url: 'https://visual-crossing-weather.p.rapidapi.com/history',
     params: {
@@ -236,8 +313,17 @@ function getCurrencyConversion(baseCurrency, countryCurrencies){
       }
     }).catch(function (error) {
       console.error(error);
+<<<<<<< HEAD
     });
 }
+=======
+  });
+  */
+
+
+
+
+>>>>>>> SamisBranch
 
 //getCountryData('US');
 getCityData('Dallas', 'US');
