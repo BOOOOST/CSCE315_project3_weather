@@ -29,7 +29,9 @@
                     console.log("capital: " + resp.data.capital);
                     console.log("calling code: " + resp.data.callingCode);
                     console.log("flagUrl: " + resp.data.flagImageUri);
-                    result.innerHTML = JSON.stringify(response.data);
+                    result.innerHTML = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
+                    "calling code: " + resp.data.callingCode + "<br>" + 
+                    "flag: <br><img src=\"" + resp.data.flagImageUri + "\" style=\"width:500px;height:auto;\">";
                 }).catch(function (error) {
                 console.error(error);
                 });
