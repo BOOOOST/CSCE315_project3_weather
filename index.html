@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="index.js"></script>
+        <script>
+            window.onload = function() {
+            console.log("hey");
+            let today = getCurrentDate();
+            document.getElementById("startDate").setAttribute("min", today);
+            document.getElementById("startDate").setAttribute("value", today);
+            document.getElementById("endDate").setAttribute("value", today);
+
+            };
+        </script>
     </head>
     <body>
         <!--Navigation-->
@@ -16,7 +27,7 @@
         <h2>Enter a destination</h2>
         <input type="text" placeholder="City Name">
         <!-- All countries -->
-    <select id="country" name="Country">
+    <select id="country" name="Country" onchange=setCountryCode()>
         <option>country</option>
         <option value="AF">Afghanistan</option>
         <option value="AX">Aland Islands</option>
@@ -277,9 +288,9 @@
         <h1></h1>
         <h2>Timespan</h2>
         <label for="startDate">Trip Start Date:</label>
-        <input type="date" id="startDate"></input>
+        <input type="date" id="startDate" onchange=setMinEndDate()></input>
         <label for="endDate">&emsp;Trip End Date:</label>
-        <input type="date" id="endDate" min="2022-04-06"></input>
+        <input type="date" id="endDate" min='2020-01-01'></input>
 
         <!--CHECKBOX-->
         <h2>Select what you would like to know</h2>
