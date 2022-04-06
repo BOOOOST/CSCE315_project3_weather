@@ -16,6 +16,8 @@ function arrayAvg(array){
 
 let geoDBhost = 'wft-geo-db.p.rapidapi.com';
 let geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
+let weatherHost = 'visual-crossing-weather.p.rapidapi.com';
+let weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
@@ -97,8 +99,8 @@ function historicalWeather(cityLat, cityLon, startDate, endDate){
         shortColumnNames: '0'
     },
     headers: {
-        'X-RapidAPI-Host': 'visual-crossing-weather.p.rapidapi.com',
-        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+        'X-RapidAPI-Host': weatherHost,
+        'X-RapidAPI-Key': weatherKey
     }
     };
 
@@ -170,8 +172,8 @@ function getForecast(cityLat, cityLon){
         shortColumnNames: '0'
     },
     headers: {
-        'X-RapidAPI-Host': 'visual-crossing-weather.p.rapidapi.com',
-        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+        'X-RapidAPI-Host': weatherHost,
+        'X-RapidAPI-Key': weatherKey
     }
     };
 
