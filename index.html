@@ -8,9 +8,18 @@
             var weatherHost = 'visual-crossing-weather.p.rapidapi.com';
             var weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 
+            //returns average value of array
+            function arrayAvg(array){
+                total = 0
+                for(let i = 0; i < array.length; i++){
+                    total += array[i];
+                }
+                return total/array.length;
+            }
+
             //get country data with ISO country code as string (US, PK, etc)
             function getCountryData(countryCode){
-                var result = document.getElementById("result");
+                var result = document.getElementById("countryResult");
                 const options = {
                 method: 'GET',
                 url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
@@ -41,6 +50,127 @@
                 var elem = document.getElementById("country");
                 return elem.value;
             }
+
+            //search for city and get its data with searchCity (string) and ISO country code (string)
+            function getCityData(searchCity, countryCode){
+                var cityResult = document.getElementById("cityResult");
+                const options2 = {
+                    method: 'GET',
+                    url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities',
+                    params: {
+                    countryIds: countryCode,
+                    minPopulation: '1000',
+                    namePrefix: searchCity,
+                    sort: '-population',
+                    types: 'CITY'
+                    },
+                    headers: {
+                    'X-RapidAPI-Host': geoDBhost,
+                    'X-RapidAPI-Key': geoDBkey
+                    }
+                };
+                
+                let cityLat = 0;
+                let cityLon = 0;
+                axios.request(options2).then(function (response) {
+                    const resp = response.data;
+                    let idx = 0;
+                    console.log("name:", resp.data[idx].name);
+                    console.log("state/province:", resp.data[idx].region);
+                    cityLat = resp.data[idx].latitude;
+                    console.log("lat:", cityLat);
+                    cityLon = resp.data[idx].longitude;
+                    console.log("lon:", cityLon);
+                    console.log("population:", resp.data[idx].population);
+                    cityResult.innerHTML = "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
+                }).catch(function (error) {
+                    console.error(error);
+                });
+                return [cityLat, cityLon];
+            }
+
+            //get forecast with cityLat, cityLon (latitude, longtitude) as float
+            function getForecast(cityLat, cityLon){
+                var weatherResult = document.getElementById("weatherResult");
+                var weatherString = "<br>";
+                let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
+                let futureDates = [];
+                let futureLowTemps = [];
+                let futureHighTemps = [];
+                let futurePrecip = [];
+                let futureConditions = [];
+                const forecastOptions = {
+                method: 'GET',
+                url: 'https://visual-crossing-weather.p.rapidapi.com/forecast',
+                params: {
+                    aggregateHours: '24',
+                    location: weatherDataCoords,
+                    contentType: 'json',
+                    unitGroup: 'us',
+                    shortColumnNames: '0'
+                },
+                headers: {
+                    'X-RapidAPI-Host': weatherHost,
+                    'X-RapidAPI-Key': weatherKey
+                }
+                };
+
+                let avgLowTemp = 200
+                let avgHighTemp = 200;
+                let avgPrecip = 200;
+                axios.request(forecastOptions).then(function (response) {
+                    const resp = response.data;
+                    let forecastData = resp.locations[weatherDataCoords].values;
+                    for(day in forecastData){
+                        let date = forecastData[day].datetimeStr.toString().substring(0,10);
+                        console.log("\ndate:", date);
+                        weatherString += "Date: " + date + "<br>";
+                        futureDates.push(date);
+
+                        let lowTemp = forecastData[day].mint;
+                        console.log("low temp:", lowTemp);
+                        weatherString += "Low Temp: " + lowTemp + "<br>";
+                        futureLowTemps.push(lowTemp);
+
+                        let maxTemp = forecastData[day].maxt;
+                        console.log("high temp:", maxTemp);
+                        weatherString += "High Temp: " + maxTemp + "<br>";
+                        futureHighTemps.push(maxTemp);
+
+                        let precipitation = forecastData[day].precip;
+                        console.log("precipitation: ", precipitation);
+                        weatherString += "Precipitation: " + precipitation + "<br>";
+                        futurePrecip.push(precipitation);
+
+                        let conditions = forecastData[day].conditions;
+                        console.log("conditions: ", conditions);
+                        weatherString += "Conditions: " + conditions + "<br><br>";
+                        futureConditions.push(conditions);
+                    }
+
+                    //compute averages
+                    avgLowTemp = arrayAvg(futureLowTemps);
+                    avgHighTemp = arrayAvg(futureHighTemps);
+                    avgPrecip = arrayAvg(futurePrecip);
+                    console.log("\navgs:", avgLowTemp, avgHighTemp, avgPrecip);
+                    weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
+                    "Avg High Temp: " + avgHighTemp + "<br>" +
+                    "Avg Precipitation: " + avgPrecip;
+                    weatherResult.innerHTML = weatherString;
+                }).catch(function (error) {
+                    console.error(error);
+                });
+            }
+
+            function getResult(){
+                var weather = document.getElementById("weather");
+                if(weather.checked){
+
+                }
+                var latlon = getCityData(document.getElementById(cityname), getCountryCode());
+                setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
+                setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
+            }
         </script>
     </head>
     <body>
@@ -56,7 +186,7 @@
 
         <!--DESTINATION INPUT-->
         <h2>Enter a destination</h2>
-        <input type="text" placeholder="City Name">
+        <input type="text" id="cityname" placeholder="City Name">
         <!-- All countries -->
     <select id="country" name="Country">
         <option>country</option>
@@ -335,8 +465,10 @@
         <label for="clothing"> Clothing Recommendations </label><br>
 
         <!--Submit Button-->
-        <input type="submit" value="Submit" onclick=getCountryData(getCountryCode())>
+        <input type="submit" value="Submit" onclick=getResult()>
 
-        <div id="result"></div>
+        <div id="countryResult"></div>
+        <div id="cityResult"></div>
+        <div id="weatherResult"></div>
     </body>
 </html>
