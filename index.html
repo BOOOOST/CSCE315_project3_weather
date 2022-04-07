@@ -91,6 +91,8 @@
 
             //get forecast with cityLat, cityLon (latitude, longtitude) as float
             function getForecast(cityLat, cityLon){
+                console.log(cityLat);
+                console.log(cityLon);
                 var weatherResult = document.getElementById("weatherResult");
                 var weatherString = "<br>";
                 let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
@@ -167,7 +169,8 @@
                 if(weather.checked){
 
                 }
-                var latlon = getCityData(document.getElementById(cityname), getCountryCode());
+                var latlon = getCityData(document.getElementById("cityname").value, getCountryCode());
+                
                 setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
                 setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
             }
