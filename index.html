@@ -52,7 +52,7 @@
             }
 
             //search for city and get its data with searchCity (string) and ISO country code (string)
-            function getCityData(searchCity, countryCode){
+            async function getCityData(searchCity, countryCode){
                 var cityResult = document.getElementById("cityResult");
                 const options2 = {
                     method: 'GET',
@@ -72,7 +72,7 @@
                 
                 let cityLat = 0;
                 let cityLon = 0;
-                axios.request(options2).then(function (response) {
+                await axios.request(options2).then(function (response) {
                     const resp = response.data;
                     let idx = 0;
                     console.log("name:", resp.data[idx].name);
@@ -90,7 +90,7 @@
             }
 
             //get forecast with cityLat, cityLon (latitude, longtitude) as float
-            function getForecast(cityLat, cityLon){
+            async function getForecast(cityLat, cityLon){
                 console.log(cityLat);
                 console.log(cityLon);
                 var weatherResult = document.getElementById("weatherResult");
@@ -120,7 +120,7 @@
                 let avgLowTemp = 200
                 let avgHighTemp = 200;
                 let avgPrecip = 200;
-                axios.request(forecastOptions).then(function (response) {
+                await axios.request(forecastOptions).then(function (response) {
                     const resp = response.data;
                     let forecastData = resp.locations[weatherDataCoords].values;
                     for(day in forecastData){
@@ -164,12 +164,12 @@
                 });
             }
 
-            function getResult(){
+            async function getResult(){
                 var weather = document.getElementById("weather");
                 if(weather.checked){
 
                 }
-                var latlon = getCityData(document.getElementById("cityname").value, getCountryCode());
+                var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
                 
                 setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
                 setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
