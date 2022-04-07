@@ -2,6 +2,7 @@
 <html>
     <head>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script type="text/javascript" src="static/APIRequests.js"></script>
         <script>
             var geoDBhost = 'wft-geo-db.p.rapidapi.com';
             var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -468,7 +469,8 @@
         <label for="clothing"> Clothing Recommendations </label><br>
 
         <!--Submit Button-->
-        <input type="submit" value="Submit" onclick=getResult()>
+        <input type="button" value="Submit" onclick=getResult()>
+        <input type="button" value="currency test" onclick=getCurrencyConversion('USD',['AUD'])>
 
         <div id="countryResult"></div>
         <div id="cityResult"></div>
