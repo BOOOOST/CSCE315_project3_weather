@@ -6,7 +6,7 @@ var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
 var weatherHost = 'visual-crossing-weather.p.rapidapi.com';
 var weatherKey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
-
+var currencyCodes = [];
 //returns average value of array
 function arrayAvg(array){
     total = 0
@@ -33,6 +33,8 @@ function getCountryData(countryCode){
     axios.request(options).then(function (response) {
         console.log("country data response");
         const resp = response.data;
+        currencyCodes = resp.data.currencyCodes;
+        console.log(currencyCodes);
         console.log("name: " + resp.data.name);
         console.log("capital: " + resp.data.capital);
         console.log("calling code: " + resp.data.callingCode);
@@ -40,6 +42,7 @@ function getCountryData(countryCode){
         result.innerHTML = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
         "calling code: " + resp.data.callingCode + "<br>" + 
         "flag: <br><img src=\"" + resp.data.flagImageUri + "\" style=\"width:500px;height:auto;\">";
+        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
     }).catch(function (error) {
     console.error(error);
     });
@@ -82,7 +85,7 @@ async function getCityData(searchCity, countryCode){
         cityLon = resp.data[idx].longitude;
         console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
-        cityResult.innerHTML = "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
+        cityResult.innerHTML = "Info about " + resp.data[idx].name + "<br>" + "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
     }).catch(function (error) {
         console.error(error);
     });
@@ -164,6 +167,31 @@ async function getForecast(cityLat, cityLon){
     });
 }
 
+//baseCurrency is string for currency symbol ('USD'), countryCurrencies is array of strings with currency symbols (['GBP'])
+async function getCurrencyConversion(baseCurrency, countryCurrencies){
+    const currencyOptions = {
+      method: 'GET',
+      url: 'https://exchangerate-api.p.rapidapi.com/rapid/latest/' + baseCurrency,
+      headers: {
+        'X-RapidAPI-Host': 'exchangerate-api.p.rapidapi.com',
+        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+      }
+    };
+    
+    currencyString = "";
+    await axios.request(currencyOptions).then(function (response) {
+      const resp = response.data;
+      for (let i = 0; i < countryCurrencies.length; i++){
+        console.log(countryCurrencies[i]);
+        console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
+        currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "<br>";
+      }
+    }).catch(function (error) {
+      console.error(error);
+    });
+    currencyResult.innerHTML = currencyString;
+}
+
 async function getResult(){
     var weather = document.getElementById("weather");
     if(weather.checked){
@@ -173,25 +201,5 @@ async function getResult(){
     console.log('lat',latlon[0],'lon:',latlon[1]);
     setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
     setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
-}
-
-function getCurrencyConversion(baseCurrency, countryCurrencies){
-  const currencyOptions = {
-    method: 'GET',
-    url: 'https://exchangerate-api.p.rapidapi.com/rapid/latest/' + baseCurrency,
-    headers: {
-      'X-RapidAPI-Host': 'exchangerate-api.p.rapidapi.com',
-      'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
-    }
-  };
-  
-  axios.request(currencyOptions).then(function (response) {
-    const resp = response.data;
-    for (let i = 0; i < countryCurrencies.length; i++){
-      console.log(countryCurrencies[i]);
-      console.log(resp.rates[countryCurrencies[i]]);
-    }
-  }).catch(function (error) {
-    console.error(error);
-  });
+    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
 }
