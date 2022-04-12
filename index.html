@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="static/index.css">
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script type="text/javascript" src="static/APIRequests.js"></script>
         <script type="text/javascript" src="static/indexhelper.js"></script>
@@ -9,11 +10,8 @@
         <!--Navigation-->
         <div class = "NavBar">
             <h1>Travel Sight</h1>
-            <ul>
-                <p>TravelSight</p>
-                <div class = "NavBarAbout"><li ><a href = "about.html"> About </a></li></div>
-                <div class = "NavBarHome"><li><a href = "index.html"> Home </a></li></div>
-            </ul>
+                <button class="MenuButton" onclick="location.href='index.html'">Home</button>
+                <button class="MenuButton" onclick="location.href='about.html'">About</button>
         </div>
 
         <!--DESTINATION INPUT-->
@@ -297,7 +295,7 @@
         <label for="clothing"> Clothing Recommendations </label><br>
 
         <!--Submit Button-->
-        <input type="button" value="Submit" onclick=getResult()>
+        <input type="button" value="Submit" class="SubmitButton" onclick=getResult()>
 
         <div id="countryResult"></div>
         <div id="currencyResult"></div>
