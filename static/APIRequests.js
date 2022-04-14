@@ -167,6 +167,80 @@ async function getForecast(cityLat, cityLon){
     });
 }
 
+//get historical weather data between dates
+//date format: yyyy-mm-dd ('2020-04-01')
+//cityLat, cityLon are latitude, loingtitude as float, start date, end date are date range to get weather
+async function historicalWeather(cityLat, cityLon, startDate, endDate){
+    let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
+    console.log("getting historical weather for:", weatherDataCoords);
+
+    const optionsHistoricWeather = {
+    method: 'GET',
+    url: 'https://visual-crossing-weather.p.rapidapi.com/history',
+    params: {
+        startDateTime: startDate + 'T00:00:00',
+        aggregateHours: '24',
+        location: weatherDataCoords,
+        endDateTime: endDate + 'T00:00:00',
+        unitGroup: 'us',
+        contentType: 'json',
+        shortColumnNames: '0'
+    },
+    headers: {
+        'X-RapidAPI-Host': weatherHost,
+        'X-RapidAPI-Key': weatherKey
+    }
+    };
+
+    let historicalDates = [];
+    let historicalLowTemps = [];
+    let historicalHighTemps = [];
+    let historicalPrecip = [];
+    let historicalConditions = [];
+    let avgLowTemp = 200
+    let avgHighTemp = 200;
+    let avgPrecip = 200;
+    await axios.request(optionsHistoricWeather).then(function (response) {
+        const resp = response.data;
+        console.log(resp);
+        let historicalData = resp.locations[weatherDataCoords].values;
+        console.log(historicalData);
+        for(day in historicalData){
+            console.log("day data:");
+            //console.log(historicalData[day]);
+            let date = historicalData[day].datetimeStr.toString().substring(0,10);
+            console.log("\ndate:", date);
+            historicalDates.push(date);
+
+            let lowTemp = historicalData[day].mint;
+            console.log("low temp:", lowTemp);
+            historicalLowTemps.push(lowTemp);
+
+            let maxTemp = historicalData[day].maxt;
+            console.log("high temp:", maxTemp);
+            historicalHighTemps.push(maxTemp);
+
+            let precipitation = historicalData[day].precip;
+            console.log("precipitation: ", precipitation);
+            historicalPrecip.push(precipitation);
+
+            let conditions = historicalData[day].conditions;
+            console.log("conditions: ", conditions);
+            historicalConditions.push(conditions);
+        }
+
+        //compute averages
+        avgLowTemp = arrayAvg(historicalLowTemps);
+        avgHighTemp = arrayAvg(historicalHighTemps);
+        avgPrecip = arrayAvg(historicalPrecip);
+        console.log("avgs:", avgLowTemp, avgHighTemp, avgPrecip);
+
+    }).catch(function (error) {
+        console.error(error);
+    });
+    return [avgLowTemp, avgHighTemp, avgPrecip];
+}
+
 //baseCurrency is string for currency symbol ('USD'), countryCurrencies is array of strings with currency symbols (['GBP'])
 async function getCurrencyConversion(baseCurrency, countryCurrencies){
     const currencyOptions = {
@@ -209,3 +283,36 @@ function getCountryCode(){
     console.log(countryCode);
     return countryCode;
 }
+
+function dateToString(date){
+    //https://stackoverflow.com/questions/32378590/
+    let dd = date.getDate();
+    let mm = date.getMonth() + 1; //January is 0!
+    let yyyy = date.getFullYear();
+
+    if (dd < 10) {dd = '0' + dd;}
+
+    if (mm < 10) {mm = '0' + mm;} 
+
+    let dateString = yyyy + '-' + mm + '-' + dd;
+    return dateString;
+}
+
+function stringToDate(dateString){
+    let dateArray = dateString.split("-");
+    let convertedDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+    return convertedDate;
+}
+
+function getDatesAsDate(){
+    let startDateStr = document.getElementById("startDate").value;
+    let endDateStr = document.getElementById("endDate").value;
+    let startDateDate = stringToDate(startDateStr);
+    let endDateDate = stringToDate(endDateStr);
+    let lastYearStart = startDateDate;
+    let endYearStart = endDateDate;
+    lastYearStart.setFullYear(startDateDate.getFullYear() -1);
+    endYearStart.setFullYear(endDateDate.getFullYear() -1);
+
+}
+
