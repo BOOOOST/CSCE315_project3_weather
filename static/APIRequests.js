@@ -93,7 +93,7 @@ async function getCityData(searchCity, countryCode){
 }
 
 //get forecast with cityLat, cityLon (latitude, longtitude) as float
-async function getForecast(cityLat, cityLon){
+async function getForecast(cityLat, cityLon, startDate, endDate){
     console.log(cityLat);
     console.log(cityLon);
     var weatherResult = document.getElementById("weatherResult");
@@ -128,29 +128,83 @@ async function getForecast(cityLat, cityLon){
         let forecastData = resp.locations[weatherDataCoords].values;
         for(day in forecastData){
             let date = forecastData[day].datetimeStr.toString().substring(0,10);
-            console.log("\ndate:", date);
-            weatherString += "Date: " + date + "<br>";
+            //console.log("\ndate:", date);
             futureDates.push(date);
 
             let lowTemp = forecastData[day].mint;
-            console.log("low temp:", lowTemp);
-            weatherString += "Low Temp: " + lowTemp + "<br>";
+            //console.log("low temp:", lowTemp);
             futureLowTemps.push(lowTemp);
 
             let maxTemp = forecastData[day].maxt;
-            console.log("high temp:", maxTemp);
-            weatherString += "High Temp: " + maxTemp + "<br>";
+            //console.log("high temp:", maxTemp);
             futureHighTemps.push(maxTemp);
 
             let precipitation = forecastData[day].precip;
-            console.log("precipitation: ", precipitation);
-            weatherString += "Precipitation: " + precipitation + "<br>";
+            //console.log("precipitation: ", precipitation);
             futurePrecip.push(precipitation);
 
             let conditions = forecastData[day].conditions;
-            console.log("conditions: ", conditions);
-            weatherString += "Conditions: " + conditions + "<br><br>";
+            //console.log("conditions: ", conditions);
             futureConditions.push(conditions);
+        }
+
+        //store indexes of data arrays with start and end dates 
+        console.log("filter with dates:", startDate, endDate);
+        let startIndex = -1;
+        let endIndex = -1;
+        //filter data to display relevant dates only
+        for(let i = 0; i < futureDates.length; i++){
+            console.log("date:",futureDates[i]);
+            if(futureDates[i] === startDate){ //found start date in array
+                startIndex = i;
+            }
+            if(futureDates[i] === endDate){ //found end date
+                endIndex = i;
+                break;
+            }
+        }
+
+        //do filtering
+        if(startIndex == -1){ //start index not found, forecast not available
+            console.log("Forecast not Available");
+            console.log("Indexes:", startIndex, endIndex);
+        }
+        else if(startIndex != -1 && endIndex == -1){ //found start date but not end date
+            console.log("Indexes:", startIndex, endIndex);
+            let dataPoints = futureDates.length; //number of datapoints in date range
+            futureDates = futureDates.slice(startIndex, dataPoints);
+            futureLowTemps = futureLowTemps.slice(startIndex, dataPoints);
+            futureHighTemps = futureHighTemps.slice(startIndex, dataPoints);
+            futurePrecip = futurePrecip.slice(startIndex, dataPoints);
+            futureConditions = futureConditions.slice(startIndex, dataPoints);
+
+        }
+        else if(startIndex != -1 && endIndex != -1){ //found start and end
+            console.log("Indexes:", startIndex, endIndex);
+            futureDates = futureDates.slice(startIndex, endIndex + 1);
+            futureLowTemps = futureLowTemps.slice(startIndex, endIndex + 1);
+            futureHighTemps = futureHighTemps.slice(startIndex, endIndex + 1);
+            futurePrecip = futurePrecip.slice(startIndex, endIndex + 1);
+            futureConditions = futureConditions.slice(startIndex, endIndex + 1);
+        }
+        else{ //bruh
+            console.log("ERROR: Forecast date range filtering error");
+            console.log("Indexes:", startIndex, endIndex);
+        }
+
+        //push results to response data
+        for(let i = 0; i < futureDates.length; i++){
+            let date = futureDates[i];
+            let lowTemp = futureLowTemps[i];
+            let maxTemp = futureHighTemps[i];
+            let precipitation = futurePrecip[i];
+            let conditions = futureConditions[i];
+            weatherString += "Date: " + date + "<br>";
+            weatherString += "Low Temp: " + lowTemp + "<br>";
+            weatherString += "High Temp: " + maxTemp + "<br>";
+            weatherString += "Precipitation: " + precipitation + "<br>";
+            weatherString += "Conditions: " + conditions + "<br><br>";
+
         }
 
         //compute averages
@@ -202,30 +256,30 @@ async function historicalWeather(cityLat, cityLon, startDate, endDate){
     let avgPrecip = 200;
     await axios.request(optionsHistoricWeather).then(function (response) {
         const resp = response.data;
-        console.log(resp);
+        //console.log(resp);
         let historicalData = resp.locations[weatherDataCoords].values;
-        console.log(historicalData);
+        //console.log(historicalData);
         for(day in historicalData){
             console.log("day data:");
             //console.log(historicalData[day]);
             let date = historicalData[day].datetimeStr.toString().substring(0,10);
-            console.log("\ndate:", date);
+            //console.log("\ndate:", date);
             historicalDates.push(date);
 
             let lowTemp = historicalData[day].mint;
-            console.log("low temp:", lowTemp);
+            //console.log("low temp:", lowTemp);
             historicalLowTemps.push(lowTemp);
 
             let maxTemp = historicalData[day].maxt;
-            console.log("high temp:", maxTemp);
+            //console.log("high temp:", maxTemp);
             historicalHighTemps.push(maxTemp);
 
             let precipitation = historicalData[day].precip;
-            console.log("precipitation: ", precipitation);
+            //console.log("precipitation: ", precipitation);
             historicalPrecip.push(precipitation);
 
             let conditions = historicalData[day].conditions;
-            console.log("conditions: ", conditions);
+            //console.log("conditions: ", conditions);
             historicalConditions.push(conditions);
         }
 
@@ -268,13 +322,14 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
 
 async function getResult(){
     var weather = document.getElementById("weather");
+    let dateRange = getDatesAsDate();
     if(weather.checked){
 
     }
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
     console.log('lat',latlon[0],'lon:',latlon[1]);
     setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
-    setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
+    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
 }
   
@@ -310,9 +365,10 @@ function getDatesAsDate(){
     let startDateDate = stringToDate(startDateStr);
     let endDateDate = stringToDate(endDateStr);
     let lastYearStart = startDateDate;
-    let endYearStart = endDateDate;
+    let lastYearEnd = endDateDate;
     lastYearStart.setFullYear(startDateDate.getFullYear() -1);
-    endYearStart.setFullYear(endDateDate.getFullYear() -1);
-
+    lastYearEnd.setFullYear(endDateDate.getFullYear() -1);
+    console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
+    return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
 }
 
