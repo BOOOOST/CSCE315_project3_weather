@@ -5,7 +5,7 @@ app.use("/static", express.static('./static/'));
 
 
 app.get('/', (req, res) => {
-  res.sendFile('index.html', {root: __dirname })
+  res.sendFile('static/index.html', {root: __dirname })
 })
 
 //app.use(express.static(__dirname + "/../csce315_project3"));
