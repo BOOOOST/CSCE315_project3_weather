@@ -8,7 +8,6 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', {root: __dirname })
 })
 
-
 //app.use(express.static(__dirname + "/../csce315_project3"));
 
 app.listen(port, () => {

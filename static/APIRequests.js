@@ -167,6 +167,40 @@ async function getForecast(cityLat, cityLon){
     });
 }
 
+async function getWalkScore()
+{
+    console.log("WalkScore Function");
+    let cityLat = '29.749907';
+    let cityLon = '-95.358421';
+    let cityName = 'Houston';
+    const options = {
+        method: 'GET',
+        url: 'https://walk-score.p.rapidapi.com/score',
+        params: {
+          lat: cityLat,
+          address: cityName,
+          wsapikey: 'a3d932d96574feac7773fccf866af126',
+          lon: cityLon,
+          format: 'json',
+          bike: '1',
+          transit: '1'
+        },
+        headers: {
+          'X-RapidAPI-Host': 'walk-score.p.rapidapi.com',
+          'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+        }
+      };
+      
+      axios.request(options).then(function (response) {
+          let resp = response.data;
+          console.log(resp);
+          let walkScore = resp.description;
+          console.log(walkScore);
+      }).catch(function (error) {
+          console.error(error);
+      });
+}
+
 //baseCurrency is string for currency symbol ('USD'), countryCurrencies is array of strings with currency symbols (['GBP'])
 async function getCurrencyConversion(baseCurrency, countryCurrencies){
     const currencyOptions = {
@@ -203,6 +237,7 @@ async function getResult(){
     setTimeout(() => { getForecast(latlon[0], latlon[1]); }, 2500);
     //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
 }
+
   
 function getCountryCode(){
     let countryCode = document.getElementById("country").value;
