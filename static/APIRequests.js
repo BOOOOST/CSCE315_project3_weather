@@ -39,10 +39,11 @@ function getCountryData(countryCode){
         console.log("capital: " + resp.data.capital);
         console.log("calling code: " + resp.data.callingCode);
         console.log("flagUrl: " + resp.data.flagImageUri);
-        result.innerHTML = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
+        let countryRes = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
         "calling code: " + resp.data.callingCode + "<br>" + 
         "flag: <br><img src=\"" + resp.data.flagImageUri + "\" style=\"width:500px;height:auto;\">";
-        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
+        localStorage.setItem("countryData", countryRes);
+        //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
     }).catch(function (error) {
     console.error(error);
     });
@@ -85,7 +86,8 @@ async function getCityData(searchCity, countryCode){
         cityLon = resp.data[idx].longitude;
         console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
-        cityResult.innerHTML = "Info about " + resp.data[idx].name + "<br>" + "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
+        let cityRes = "Info about " + resp.data[idx].name + "<br>" + "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
+        localStorage.setItem("cityData",cityRes);
     }).catch(function (error) {
         console.error(error);
     });
@@ -215,7 +217,7 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
         "Avg High Temp: " + avgHighTemp + "<br>" +
         "Avg Precipitation: " + avgPrecip;
-        weatherResult.innerHTML = weatherString;
+        localStorage.setItem("weatherData", weatherString);
     }).catch(function (error) {
         console.error(error);
     });
@@ -350,7 +352,8 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
     }).catch(function (error) {
       console.error(error);
     });
-    currencyResult.innerHTML = currencyString;
+    localStorage.setItem("currencyData", currencyString);
+    //currencyResult.innerHTML = currencyString;
 }
 
 async function getResult(){
@@ -361,9 +364,10 @@ async function getResult(){
     }
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
     console.log('lat',latlon[0],'lon:',latlon[1]);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
-    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
+    setTimeout(() => { getCountryData(getCountryCode()); }, 500);
+    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 1000);
+    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1000); 
+    setTimeout(() => { window.open('results.html','_blank').focus();}, 2000);
 }
 
   
