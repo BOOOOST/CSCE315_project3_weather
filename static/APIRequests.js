@@ -321,8 +321,11 @@ async function getWalkScore(){
       axios.request(options).then(function (response) {
           let resp = response.data;
           console.log(resp);
+          let walkScore = resp.walkscore;
           let walkDescription = resp.description;
-          console.log(walkDescription);
+          let bikeScore = resp.bike.score;
+          let bikeDescription = resp.bike.description;
+          console.log(walkDescription, walkScore, bikeScore, bikeDescription);
       }).catch(function (error) {
           console.error(error);
       });
