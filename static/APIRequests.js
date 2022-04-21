@@ -48,10 +48,6 @@ function getCountryData(countryCode){
     });
 }
 
-function getCountryCode(){
-    var elem = document.getElementById("country");
-    return elem.value;
-}
 
 //search for city and get its data with searchCity (string) and ISO country code (string)
 async function getCityData(searchCity, countryCode){
