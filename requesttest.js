@@ -1,10 +1,5 @@
 var axios = require("axios");
 
-//sleep for ms millisec
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 //returns average value of array
 function arrayAvg(array){
     total = 0
