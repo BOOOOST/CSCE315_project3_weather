@@ -4,5 +4,6 @@ window.onload = function(){
     document.getElementById("cityResult").innerHTML = localStorage.getItem("cityData");
     document.getElementById("weatherResult").innerHTML = localStorage.getItem("weatherData");
     document.getElementById("currencyResult").innerHTML = localStorage.getItem("currencyData");
+    document.getElementById("bigMacResult").innerHTML = localStorage.getItem("bicMacData");
     
 }

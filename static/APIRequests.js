@@ -1,6 +1,8 @@
 var axios = require("axios");
 const express = require('express');
 const app = express();
+const fs = require("fs");
+const csv = require("csvtojson");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -18,14 +20,13 @@ function arrayAvg(array){
 
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
-    var result = document.getElementById("countryResult");
     const options = {
     method: 'GET',
     url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
     responseType: 'JSON',
     headers: {
         'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com',
-        'X-RapidAPI-Key': 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88'
+        'X-RapidAPI-Key': 'bc1582badfmshba3a05563ce547cp1fe30ejsnee2c522aceec'
     }
     };
     
@@ -35,10 +36,7 @@ function getCountryData(countryCode){
         const resp = response.data;
         currencyCodes = resp.data.currencyCodes;
         console.log(currencyCodes);
-        console.log("name: " + resp.data.name);
-        console.log("capital: " + resp.data.capital);
-        console.log("calling code: " + resp.data.callingCode);
-        console.log("flagUrl: " + resp.data.flagImageUri);
+        console.log("Country name: " + resp.data.name);
         let countryRes = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
         "calling code: " + resp.data.callingCode + "<br>" + 
         "flag: <br><img src=\"" + resp.data.flagImageUri + "\" style=\"width:500px;height:auto;\">";
@@ -57,7 +55,6 @@ function getCountryCode(){
 //search for city and get its data with searchCity (string) and ISO country code (string)
 async function getCityData(searchCity, countryCode){
   console.log("get city data for:",searchCity,countryCode);
-    var cityResult = document.getElementById("cityResult");
     const options2 = {
         method: 'GET',
         url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities',
@@ -79,12 +76,9 @@ async function getCityData(searchCity, countryCode){
     await axios.request(options2).then(function (response) {
         const resp = response.data;
         let idx = 0;
-        console.log("name:", resp.data[idx].name);
-        console.log("state/province:", resp.data[idx].region);
+        console.log("City name:", resp.data[idx].name);
         cityLat = resp.data[idx].latitude;
-        console.log("lat:", cityLat);
         cityLon = resp.data[idx].longitude;
-        console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
         let cityRes = "Info about " + resp.data[idx].name + "<br>" + "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
         localStorage.setItem("cityData",cityRes);
@@ -156,7 +150,6 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         let endIndex = -1;
         //filter data to display relevant dates only
         for(let i = 0; i < futureDates.length; i++){
-            console.log("date:",futureDates[i]);
             if(futureDates[i] === startDate){ //found start date in array
                 startIndex = i;
             }
@@ -172,7 +165,7 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
             console.log("Indexes:", startIndex, endIndex);
         }
         else if(startIndex != -1 && endIndex == -1){ //found start date but not end date
-            console.log("Indexes:", startIndex, endIndex);
+            //console.log("Indexes:", startIndex, endIndex);
             let dataPoints = futureDates.length; //number of datapoints in date range
             futureDates = futureDates.slice(startIndex, dataPoints);
             futureLowTemps = futureLowTemps.slice(startIndex, dataPoints);
@@ -182,7 +175,7 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
 
         }
         else if(startIndex != -1 && endIndex != -1){ //found start and end
-            console.log("Indexes:", startIndex, endIndex);
+            //console.log("Indexes:", startIndex, endIndex);
             futureDates = futureDates.slice(startIndex, endIndex + 1);
             futureLowTemps = futureLowTemps.slice(startIndex, endIndex + 1);
             futureHighTemps = futureHighTemps.slice(startIndex, endIndex + 1);
@@ -346,7 +339,7 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       const resp = response.data;
       for (let i = 0; i < countryCurrencies.length; i++){
         console.log(countryCurrencies[i]);
-        console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
+        //console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
         currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "<br>";
       }
     }).catch(function (error) {
@@ -356,17 +349,61 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
     //currencyResult.innerHTML = currencyString;
 }
 
+async function convertCountryCode(countryCode){
+    const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv'
+    csv()
+    .fromFile(csvFilePath)
+    .then((jsonObj)=>{
+        //console.log(jsonObj);
+        var data_filter = jsonObj.filter( element => element.two_letter == countryCode)
+        data_filter = Object.values(data_filter);
+        //console.log(data_filter);
+        three_letter = data_filter[0].three_letter;
+        //console.log("2 letter",three_letter);
+    })
+     
+    // Async / await usage
+    const jsonArray=await csv().fromFile(csvFilePath);
+    return three_letter;
+}
+
+async function bigMacIndex(countryCode2){
+    let countryCode = await convertCountryCode(countryCode2);
+    console.log(countryCode);
+    
+    const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big-mac-full-index.csv'
+    csv()
+    .fromFile(csvFilePath)
+    .then((jsonObj)=>{
+        //console.log(jsonObj);
+        var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode)
+        data_filter = Object.values(data_filter);
+        let bigMacData = data_filter[data_filter.length - 1];
+        let bicMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
+        bicMacString += "USD Price:" + bigMacData.dollar_price + "USD";
+        bicMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
+        bicMacString += "Last Updated:" + bigMacData.date;
+        localStorage.setItem("bigMacData",bigMacString);
+    })
+     
+    // Async / await usage
+    const jsonArray=await csv().fromFile(csvFilePath);
+    
+}
+
 async function getResult(){
     var weather = document.getElementById("weather");
     let dateRange = getDatesAsDate();
     if(weather.checked){
 
     }
+    console.log("get data for",getCountryCode())
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    console.log('lat',latlon[0],'lon:',latlon[1]);
+    console.log('city lat',latlon[0],'lon:',latlon[1]);
     setTimeout(() => { getCountryData(getCountryCode()); }, 500);
     setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 1000);
     setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1000); 
+    setTimeout(() => { bigMacIndex(getCountryCode()); }, 200); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2000);
 }
 

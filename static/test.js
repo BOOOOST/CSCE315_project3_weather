@@ -21,7 +21,7 @@ async function convertCountryCode(countryCode){
 }
 
 async function bigMacIndex(countryCode2){
-    let countryCode = await convertCountryCode("PK");
+    let countryCode = await convertCountryCode(countryCode2);
     console.log(countryCode);
     
     const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big-mac-full-index.csv'
@@ -32,10 +32,11 @@ async function bigMacIndex(countryCode2){
         var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode)
         data_filter = Object.values(data_filter);
         let bigMacData = data_filter[data_filter.length - 1];
-        console.log("Local Price:",bigMacData.local_price, bigMacData.currency_code);
-        console.log("USD Price:",bigMacData.dollar_price, "USD");
-        console.log("GDP Adjusted Price:",bigMacData.adj_price, "USD");
-        console.log("Last Updated:",bigMacData.date);
+        let bicMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
+        bicMacString += "USD Price:" + bigMacData.dollar_price + "USD";
+        bicMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
+        bicMacString += "Last Updated:" + bigMacData.date;
+        localStorage.setItem("bigMacData",bigMacString);
     })
      
     // Async / await usage
@@ -45,4 +46,4 @@ async function bigMacIndex(countryCode2){
 
 //let code = await countryCode("PK");
 //console.log(code);
-bigMacIndex("PAK");
+bigMacIndex("GB");
