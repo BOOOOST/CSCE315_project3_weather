@@ -60,32 +60,35 @@ async function parseTest(){
                 csvString += (result.data[i] + ",");
             }
             csvString += '\n'
+            count += 1;
             
         },
         complete: function(results, file) {
             console.log('parsing complete read', count, 'records.'); 
+            //console.log(csvString);
+            let testy = papa.parse(csvString,{ 
+                delimiter: "", // auto-detect 
+                newline: "", // auto-detect 
+                quoteChar: '"', 
+                escapeChar: '"', 
+                header: true, // creates array of {head:value} 
+                dynamicTyping: false, // convert values to numbers if possible
+                skipEmptyLines: true 
+              }); 
+            //console.log(testy.data)
+            return testy.data;
         }
     });
     console.log("done");
+    //return csvString;
 }
 //let code = await countryCode("PK");
 //console.log(code);
 //bigMacIndex("GB");
 async function test(){
+    console.log("test");
     let csvdata = await parseTest();
     console.log(csvdata);
+    console.log("test end");
 }
-//test();
-
-let csvStr = "Name,two_letter,three_letter,numeric, \nAfghanistan,AF,AFG,4, \nAlbania,AL,ALB,8,\nAlgeria,DZ,DZA,12,";
-let testy = papa.parse(csvStr,{ 
-    delimiter: "", // auto-detect 
-    newline: "", // auto-detect 
-    quoteChar: '"', 
-    escapeChar: '"', 
-    header: true, // creates array of {head:value} 
-    dynamicTyping: false, // convert values to numbers if possible
-    skipEmptyLines: true 
-  }); 
-  // the arrays of csv fields are in the data property console.log(csv.data);
-  console.log(testy.data)
+test();
