@@ -1,5 +1,6 @@
 const fs = require("fs");
 const csv = require("csvtojson");
+const papa = require("papaparse")
 
 async function convertCountryCode(countryCode){
     let three_letter = "USA";
@@ -23,7 +24,7 @@ async function convertCountryCode(countryCode){
 async function bigMacIndex(countryCode2){
     let countryCode = await convertCountryCode(countryCode2);
     console.log(countryCode);
-    
+    papaparse.parse()
     const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big-mac-full-index.csv'
     csv()
     .fromFile(csvFilePath)
@@ -32,11 +33,12 @@ async function bigMacIndex(countryCode2){
         var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode)
         data_filter = Object.values(data_filter);
         let bigMacData = data_filter[data_filter.length - 1];
-        let bicMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
-        bicMacString += "USD Price:" + bigMacData.dollar_price + "USD";
-        bicMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
-        bicMacString += "Last Updated:" + bigMacData.date;
-        localStorage.setItem("bigMacData",bigMacString);
+        let bigMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
+        bigMacString += "USD Price:" + bigMacData.dollar_price + "USD";
+        bigMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
+        bigMacString += "Last Updated:" + bigMacData.date;
+        //localStorage.setItem("bigMacData",bigMacString);
+        console.log(bigMacString)
     })
      
     // Async / await usage
@@ -44,6 +46,46 @@ async function bigMacIndex(countryCode2){
     
 }
 
+async function parseTest(){
+    const file = fs.createReadStream('C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv');
+    var count = 0; // cache the running count
+    csvString = "";
+    console.log("parse")
+    papa.parse(file, {
+        worker: true, // Don't bog down the main thread if its a big file
+        step: function(result) {
+            // do stuff with result
+            for(let i = 0; i < result.data.length; i++){
+                //console.log(result.data[i])
+                csvString += (result.data[i] + ",");
+            }
+            csvString += '\n'
+            
+        },
+        complete: function(results, file) {
+            console.log('parsing complete read', count, 'records.'); 
+        }
+    });
+    console.log("done");
+}
 //let code = await countryCode("PK");
 //console.log(code);
-bigMacIndex("GB");
+//bigMacIndex("GB");
+async function test(){
+    let csvdata = await parseTest();
+    console.log(csvdata);
+}
+//test();
+
+let csvStr = "Name,two_letter,three_letter,numeric, \nAfghanistan,AF,AFG,4, \nAlbania,AL,ALB,8,\nAlgeria,DZ,DZA,12,";
+let testy = papa.parse(csvStr,{ 
+    delimiter: "", // auto-detect 
+    newline: "", // auto-detect 
+    quoteChar: '"', 
+    escapeChar: '"', 
+    header: true, // creates array of {head:value} 
+    dynamicTyping: false, // convert values to numbers if possible
+    skipEmptyLines: true 
+  }); 
+  // the arrays of csv fields are in the data property console.log(csv.data);
+  console.log(testy.data)

@@ -1,8 +1,8 @@
 var axios = require("axios");
 const express = require('express');
+var fs = require("fs");
+var csv = require("csvtojson");
 const app = express();
-const fs = require("fs");
-const csv = require("csvtojson");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -368,8 +368,8 @@ async function convertCountryCode(countryCode){
 }
 
 async function bigMacIndex(countryCode2){
+    console.log("big mac idx for", countryCode2);
     let countryCode = await convertCountryCode(countryCode2);
-    console.log(countryCode);
     
     const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big-mac-full-index.csv'
     csv()
@@ -379,16 +379,17 @@ async function bigMacIndex(countryCode2){
         var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode)
         data_filter = Object.values(data_filter);
         let bigMacData = data_filter[data_filter.length - 1];
-        let bicMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
-        bicMacString += "USD Price:" + bigMacData.dollar_price + "USD";
-        bicMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
-        bicMacString += "Last Updated:" + bigMacData.date;
+        let bigMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
+        bigMacString += "USD Price:" + bigMacData.dollar_price + "USD";
+        bigMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
+        bigMacString += "Last Updated:" + bigMacData.date;
+        console.log("Big mac:",bigMacString);
         localStorage.setItem("bigMacData",bigMacString);
     })
      
     // Async / await usage
     const jsonArray=await csv().fromFile(csvFilePath);
-    
+ 
 }
 
 async function getResult(){
@@ -397,20 +398,20 @@ async function getResult(){
     if(weather.checked){
 
     }
-    console.log("get data for",getCountryCode())
+    console.log("get data for country code",getCountryCode())
+    bigMacIndex(getCountryCode());
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
     console.log('city lat',latlon[0],'lon:',latlon[1]);
     setTimeout(() => { getCountryData(getCountryCode()); }, 500);
-    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 1000);
+    //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 1000);
     setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1000); 
-    setTimeout(() => { bigMacIndex(getCountryCode()); }, 200); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2000);
 }
 
   
 function getCountryCode(){
     let countryCode = document.getElementById("country").value;
-    console.log(countryCode);
+    console.log("get country code",countryCode);
     return countryCode;
 }
 
@@ -443,6 +444,6 @@ function getDatesAsDate(){
     let lastYearEnd = endDateDate;
     lastYearStart.setFullYear(startDateDate.getFullYear() -1);
     lastYearEnd.setFullYear(endDateDate.getFullYear() -1);
-    console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
+    //console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
     return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
 }
