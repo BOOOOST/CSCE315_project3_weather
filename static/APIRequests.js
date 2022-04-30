@@ -18,7 +18,8 @@ function arrayAvg(array){
 
 //get country data with ISO country code as string (US, PK, etc)
 function getCountryData(countryCode){
-    var result = document.getElementById("countryResult");
+    var countryName = document.getElementById("countryName");
+    var countryFlag = document.getElementById("countryFlag")
     const options = {
     method: 'GET',
     url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode,
@@ -39,9 +40,8 @@ function getCountryData(countryCode){
         console.log("capital: " + resp.data.capital);
         console.log("calling code: " + resp.data.callingCode);
         console.log("flagUrl: " + resp.data.flagImageUri);
-        result.innerHTML = "name: " + resp.data.name + "<br>" + "capital: " + resp.data.capital + "<br>" + 
-        "calling code: " + resp.data.callingCode + "<br>" + 
-        "flag: <br><img src=\"" + resp.data.flagImageUri + "\" style=\"width:500px;height:auto;\">";
+        countryName.innerHTML = "<br> <h1 class=\"display-3\">" + resp.data.name + "</h1> <br>";
+        countryFlag.innerHTML = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
         setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
     }).catch(function (error) {
     console.error(error);
@@ -81,7 +81,7 @@ async function getCityData(searchCity, countryCode){
         cityLon = resp.data[idx].longitude;
         console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
-        cityResult.innerHTML = "Info about " + resp.data[idx].name + "<br>" + "State/Province: " + resp.data[idx].region + "<br>Latitude: " + cityLat + "<br>Longitude: " + cityLon;
+        cityResult.innerHTML = "<h1 class=\"display-2\">" + resp.data[idx].name + "</h1>";
     }).catch(function (error) {
         console.error(error);
     });
@@ -191,19 +191,36 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         //push results to response data
         for(let i = 0; i < futureDates.length; i++){
             let date = futureDates[i];
-            let lowTemp = futureLowTemps[i];
-            let maxTemp = futureHighTemps[i];
+            let low = futureLowTemps[i];
+            let high = futureHighTemps[i];
             let precipitation = futurePrecip[i];
             let conditions = futureConditions[i];
-            weatherString += "Date: " + date + "<br>";
-            weatherString += "Low Temp: " + lowTemp + "<br>";
-            weatherString += "High Temp: " + maxTemp + "<br>";
-            weatherString += "Precipitation: " + precipitation + "<br>";
-            weatherString += "Conditions: " + conditions + "<br><br>";
+            
+            let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            if(high >= 90){
+                thermometer = "<img src=\"veryhotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            }
+            else if(high >= 80){
+                thermometer = "<img src=\"hotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            }
+            else if(high >= 60){
+                thermometer = "<img src=\"mediumThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            }
+            else if(low <= 30){
+                thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            }
+            else if(low <= 40){
+                thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+            }
+
+            weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low + " - " + high + thermometer + "</h1></div></div>";
 
         }
 
+        //console.log(weatherString);
+        weatherResult.innerHTML = weatherString;
         //compute averages
+        
         avgLowTemp = arrayAvg(futureLowTemps);
         avgHighTemp = arrayAvg(futureHighTemps);
         avgPrecip = arrayAvg(futurePrecip);
@@ -211,7 +228,8 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
         "Avg High Temp: " + avgHighTemp + "<br>" +
         "Avg Precipitation: " + avgPrecip;
-        weatherResult.innerHTML = weatherString;
+        console.log(weatherString);
+        
     }).catch(function (error) {
         console.error(error);
     });
@@ -291,11 +309,9 @@ async function historicalWeather(cityLat, cityLon, startDate, endDate){
     return [avgLowTemp, avgHighTemp, avgPrecip];
 }
 
-async function getWalkScore(){
+async function getWalkScore(cityLat, cityLon, cityName){
     console.log("WalkScore Function");
-    let cityLat = '29.749907';
-    let cityLon = '-95.358421';
-    let cityName = 'Houston';
+    var walkResult = document.getElementById("walkResult");
     const options = {
         method: 'GET',
         url: 'https://walk-score.p.rapidapi.com/score',
@@ -321,7 +337,27 @@ async function getWalkScore(){
           let walkDescription = resp.description;
           let bikeScore = resp.bike.score;
           let bikeDescription = resp.bike.description;
-          console.log(walkDescription, walkScore, bikeScore, bikeDescription);
+          let walkColor = 'green';
+          if(walkScore<=50){
+            walkColor = 'red';
+          }
+          else if(walkScore <= 75)
+          {
+            walkColor = 'yellow';
+          }
+          let bikeColor = 'green';
+          if(bikeScore<=50){
+            bikeColor = 'red';
+          }
+          else if(bikeScore <= 75)
+          {
+            bikeColor = 'orange';
+          }
+          walkString = "<h1 class=\"display-6\">";
+          console.log(walkDescription, walkScore, bikeScore, bikeDescription, walkColor, bikeColor);
+          walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
+          console.log(walkResult);
+          walkResult.innerHTML = walkString;
       }).catch(function (error) {
           console.error(error);
       });
@@ -338,17 +374,18 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       }
     };
     
-    currencyString = "";
+    currencyString = "<h1 class=\"display-6\">";
     await axios.request(currencyOptions).then(function (response) {
       const resp = response.data;
       for (let i = 0; i < countryCurrencies.length; i++){
         console.log(countryCurrencies[i]);
         console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
-        currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "<br>";
+        currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "</h1><br>";
       }
     }).catch(function (error) {
       console.error(error);
     });
+    console.log(currencyString);
     currencyResult.innerHTML = currencyString;
 }
 
@@ -359,11 +396,42 @@ async function getResult(){
 
     }
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    console.log('lat',latlon[0],'lon:',latlon[1]);
+    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
     setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
-    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
+    //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
+    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
+    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 2000);
 }
+
+async function weatherTest(){
+    let weatherString = "";
+    let high = [43.4, 67.9, 23.6];
+    let low = [41.4, 61.9, 21.6];
+    let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
+    for(let i = 0; i < 3; i++){
+        let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        if(high[i] >= 90){
+            thermometer = "<img src=\"veryhotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        }
+        else if(high[i] >= 80){
+            thermometer = "<img src=\"hotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        }
+        else if(high[i] >= 60){
+            thermometer = "<img src=\"mediumThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        }
+        else if(low[i] <= 30){
+            thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        }
+        else if(low[i] <= 40){
+            thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
+        }
+
+        weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
+    }
+    console.log(weatherString);
+    weatherTestResult.innerHTML = weatherString;
+}
+
 
   
 function getCountryCode(){
@@ -404,3 +472,4 @@ function getDatesAsDate(){
     console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
     return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
 }
+

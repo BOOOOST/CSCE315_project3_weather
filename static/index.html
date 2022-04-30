@@ -11,34 +11,35 @@
         <script type="text/javascript" src="IndexHelper.js"></script>
     </head>
     <body>
+        <section class = "home-page">
+            <nav class="navbar sticky-top navbar-light bg-light">
+                <div class="container-fluid">
+                    <img src="TravelSightLogo.png" class = "logo" alt="logo">
+                    <form class="d-flex">
+                        <button type="button" class="NavButton" onclick="location.href='index.html'">Home</button>
+                        <button type="button" class="NavButton" class="btn btn-outline-primary pl-5"  onclick="location.href='about.html'">About</button>
+                    </form>
+                </div>
+            </nav>
 
-        <nav class="navbar sticky-top navbar-light bg-light">
-            <div class="container-fluid">
-                <img src="TravelSightLogo.png" class = "logo" alt="logo">
-                <form class="d-flex">
-                    <button type="button" class="NavButton" onclick="location.href='index.html'">Home</button>
-                    <button type="button" class="NavButton" class="btn btn-outline-primary pl-5"  onclick="location.href='about.html'">About</button>
-                </form>
+            <div class = "row">
+                <div class="col-md-12 d-flex justify-content-center">
+                    <h1 class="display-2" style="margin-top: 1.2em"> Welcome to TravelSight</h1>
+                </div>
             </div>
-        </nav>
 
-        <div class = "row">
-            <div class="col-md-12 d-flex justify-content-center">
-               <h1 class="display-2" style="margin-top: 1.2em"> Welcome to TravelSight</h1>
-           </div>
-        </div>
+            <div class = "row mt-5">
+                <div class="col-md-12 d-flex justify-content-center">
+                    <h1 class="display-3">Your personalized trip adivsor</h1>
+                </div>
+            </div>
 
-        <div class = "row mt-5">
-            <div class="col-md-12 d-flex justify-content-center">
-               <h1 class="display-3">Your personalized trip adivsor</h1>
-           </div>
-        </div>
-
-        <div class = "row mt-5">
-            <div class="col-md-12 d-flex justify-content-center">
-                <input type="button" value="Get Started" class="SubmitButton" style="margin-bottom:4.5em" onclick="location.href='#about'">
-           </div>
-        </div>
+            <div class = "row mt-5">
+                <div class="col-md-12 d-flex justify-content-center">
+                    <input type="button" value="Get Started" class="SubmitButton" style="margin-bottom:4.5em" onclick="location.href='#about'">
+                </div>
+            </div>
+        </section>
 
     <div id="about"></div>
     <section class = "inputPage">
@@ -352,18 +353,45 @@
 
         <div class = "row mt-5">
             <div class="col-md-12 d-flex justify-content-center">
-               <input type="button" value="Submit" class="SubmitButton" onclick=getResult()>
-               <input type="button" value="Test" class="SubmitButton" style="margin-bottom: 3em" onclick=getWalkScore()>
+               <input type="button" value="Submit" class="SubmitButton" onclick = "getResult()">
+               <input type="button" value="Test" class="SubmitButton" onclick = "weatherTest()">
            </div>
         </div>
     </section>
 
 
-        <div id="countryResult"></div>
-        <div id="currencyResult"></div>
-        <div id="cityResult"></div>
-        <div id="weatherResult"></div>
-
+    <div class = "row mt-5">
+        <div class="col-md-12 d-flex justify-content-center">
+            <div id="cityResult"></div>
+       </div>
+    </div>
+    <div class = "row mt-2">
+        <div class="col-md-12 d-flex justify-content-center">
+            <div id="countryName"></div>
+       </div>
+    </div>
+    <div class = "row mt-2">
+        <div class="col-md-12 d-flex justify-content-center">
+            <div id="countryFlag"></div>
+       </div>
+    </div>
+    <div id = "weatherResult"></div>
+    <div class = "row mt-5">
+        <div class="col-md-6 d-flex justify-content-center">
+            <h1 class="display-6">Currency Conversion</h1>
+       </div>
+        <div class="col-md-6 d-flex justify-content-center">
+            <div id="currencyResult"></div>
+       </div>
+    </div>
+    <div class = "row mt-5">
+        <div class="col-md-6 d-flex justify-content-center">
+            <h1 class="display-6">Getting Around</h1>
+       </div>
+        <div class="col-md-6 d-flex justify-content-center">
+            <div id="walkResult"></div>
+        </div>
+    </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     </body>
 </html>
