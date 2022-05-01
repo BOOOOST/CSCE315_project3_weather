@@ -40,8 +40,10 @@ function getCountryData(countryCode){
         console.log("capital: " + resp.data.capital);
         console.log("calling code: " + resp.data.callingCode);
         console.log("flagUrl: " + resp.data.flagImageUri);
-        countryName.innerHTML = "<br> <h1 class=\"display-3\">" + resp.data.name + "</h1> <br>";
-        countryFlag.innerHTML = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
+        let countryName = "<br> <h1 class=\"display-3\">" + resp.data.name + "</h1> <br>";
+        let countryFlag = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
+        localStorage.setItem("countryName", countryName);
+        localStorage.setItem("countryFlag", countryFlag);
         setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
     }).catch(function (error) {
     console.error(error);
@@ -81,7 +83,8 @@ async function getCityData(searchCity, countryCode){
         cityLon = resp.data[idx].longitude;
         console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
-        cityResult.innerHTML = "<h1 class=\"display-2\">" + resp.data[idx].name + "</h1>";
+        let cityResult = "<h1 class=\"display-2\">" + resp.data[idx].name + "</h1>";
+        localStorage.setItem("cityResult", cityResult);
     }).catch(function (error) {
         console.error(error);
     });
@@ -218,7 +221,8 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         }
 
         //console.log(weatherString);
-        weatherResult.innerHTML = weatherString;
+        let weatherResult = weatherString;
+        localStorage.setItem("weatherResult", weatherResult);
         //compute averages
         
         avgLowTemp = arrayAvg(futureLowTemps);
@@ -357,7 +361,8 @@ async function getWalkScore(cityLat, cityLon, cityName){
           console.log(walkDescription, walkScore, bikeScore, bikeDescription, walkColor, bikeColor);
           walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
           console.log(walkResult);
-          walkResult.innerHTML = walkString;
+          let walkResult = walkString;
+          localStorage.setItem("walkResult", walkResult);
       }).catch(function (error) {
           console.error(error);
       });
@@ -386,7 +391,8 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       console.error(error);
     });
     console.log(currencyString);
-    currencyResult.innerHTML = currencyString;
+    let currencyResult = currencyString;
+    localStorage.setItem("currencyResult", currencyResult);
 }
 
 async function getResult(){
@@ -401,6 +407,7 @@ async function getResult(){
     //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
     setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 2000);
+    setTimeout(() => { window.open('results.html','_blank').focus();}, 3000);
 }
 
 async function weatherTest(){
@@ -429,7 +436,9 @@ async function weatherTest(){
         weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
     }
     console.log(weatherString);
-    weatherTestResult.innerHTML = weatherString;
+    let weatherTestResult = weatherString;
+    localStorage.setItem("weatherTestResult", weatherTestResult);
+    
 }
 
 
