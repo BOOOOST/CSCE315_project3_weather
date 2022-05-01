@@ -44,7 +44,7 @@ function getCountryData(countryCode){
         let countryFlag = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
         localStorage.setItem("countryName", countryName);
         localStorage.setItem("countryFlag", countryFlag);
-        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
+        //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000);
     }).catch(function (error) {
     console.error(error);
     });
@@ -403,11 +403,11 @@ async function getResult(){
     }
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
     console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 2000);
+    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
     //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2000); 
-    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 2000);
-    setTimeout(() => { window.open('results.html','_blank').focus();}, 3000);
+    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
+    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
 async function weatherTest(){
@@ -435,9 +435,9 @@ async function weatherTest(){
 
         weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
     }
-    console.log(weatherString);
+    //console.log(weatherString);
     let weatherTestResult = weatherString;
-    localStorage.setItem("weatherTestResult", weatherTestResult);
+    localStorage.setItem("weatherResult", weatherTestResult);
     
 }
 

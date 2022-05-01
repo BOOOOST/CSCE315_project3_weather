@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html>
     <body>
+        <!-- nav bar -->
+        <nav class="navbar sticky-top navbar-light bg-light">
+            <div class="container-fluid">
+                <img src="TravelSightLogo.png" class = "logo" alt="logo">
+                <form class="d-flex">
+                    <button type="button" class="NavButton" onclick="location.href='index.html'">Home</button>
+                    <button type="button" class="NavButton" class="btn btn-outline-primary pl-5"  onclick="location.href='about.html'">About</button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- results -->
         <div class = "row mt-5">
             <div class="col-md-12 d-flex justify-content-center">
                 <div id="cityResult"></div>
@@ -33,6 +45,8 @@
                 <div id="walkResult"></div>
             </div>
         </div>
+
+        <div id="weatherResult"></div>
     </body>
 
     <head>
