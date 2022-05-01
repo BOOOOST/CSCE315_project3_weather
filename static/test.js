@@ -1,6 +1,7 @@
 const fs = require("fs");
 const csv = require("csvtojson");
-const papa = require("papaparse")
+const papa = require("papaparse");
+const path = require("path");
 
 async function convertCountryCode(countryCode){
     let three_letter = "USA";
@@ -46,11 +47,14 @@ async function bigMacIndex(countryCode2){
     
 }
 
-async function parseTest(){
-    const file = fs.createReadStream('C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv');
+function parseTest(){
+    pathStr = path.resolve(__dirname, "../CountryCodes.csv");
+    console.log(pathStr);
+    const file = fs.createReadStream();
     var count = 0; // cache the running count
     csvString = "";
-    console.log("parse")
+    console.log("parse");
+    return new Promise((resolve,reject) => {
     papa.parse(file, {
         worker: true, // Don't bog down the main thread if its a big file
         step: function(result) {
@@ -59,13 +63,14 @@ async function parseTest(){
                 //console.log(result.data[i])
                 csvString += (result.data[i] + ",");
             }
-            csvString += '\n'
+            csvString += '\n';
             count += 1;
             
         },
         complete: function(results, file) {
             console.log('parsing complete read', count, 'records.'); 
             //console.log(csvString);
+            //resolve(csvString);
             let testy = papa.parse(csvString,{ 
                 delimiter: "", // auto-detect 
                 newline: "", // auto-detect 
@@ -76,8 +81,9 @@ async function parseTest(){
                 skipEmptyLines: true 
               }); 
             //console.log(testy.data)
-            return testy.data;
+            resolve(testy.data);
         }
+    });
     });
     console.log("done");
     //return csvString;
