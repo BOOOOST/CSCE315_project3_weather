@@ -1,63 +1,57 @@
 const fs = require("fs");
-const csv = require("csvtojson");
 const papa = require("papaparse");
 const path = require("path");
 
+//Convert 2 letter to 3 letter country code
 async function convertCountryCode(countryCode){
-    let three_letter = "USA";
-    const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv'
-    csv()
-    .fromFile(csvFilePath)
-    .then((jsonObj)=>{
-        //console.log(jsonObj);
-        var data_filter = jsonObj.filter( element => element.two_letter == countryCode)
+    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
+    return new Promise((resolve,reject) => { //fpr aync stuff
+        //filter json to get correct country
+        var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
         data_filter = Object.values(data_filter);
-        //console.log(data_filter);
+        console.log(data_filter);
         three_letter = data_filter[0].three_letter;
-        //console.log("2 letter",three_letter);
-    })
-     
-    // Async / await usage
-    const jsonArray=await csv().fromFile(csvFilePath);
-    return three_letter;
+        resolve(three_letter);
+    });
+
 }
 
+//get big mac index for country
 async function bigMacIndex(countryCode2){
-    let countryCode = await convertCountryCode(countryCode2);
-    console.log(countryCode);
-    papaparse.parse()
-    const csvFilePath='C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big-mac-full-index.csv'
-    csv()
-    .fromFile(csvFilePath)
-    .then((jsonObj)=>{
-        //console.log(jsonObj);
-        var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode)
-        data_filter = Object.values(data_filter);
-        let bigMacData = data_filter[data_filter.length - 1];
-        let bigMacString = "Local Price:" + bigMacData.local_price + bigMacData.currency_code + "\n";
-        bigMacString += "USD Price:" + bigMacData.dollar_price + "USD";
-        bigMacString += "GDP Adjusted Price:" + bigMacData.adj_price + "USD";
-        bigMacString += "Last Updated:" + bigMacData.date;
-        //localStorage.setItem("bigMacData",bigMacString);
-        console.log(bigMacString)
-    })
-     
-    // Async / await usage
-    const jsonArray=await csv().fromFile(csvFilePath);
+    let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
+    console.log("Big mac index for:",countryCode);
+    let jsonObj = await convertCSVtoJSON("big-mac-full-index.csv"); //load csv file
+    var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
+    data_filter = Object.values(data_filter);
+    let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
+    let localPrice = bigMacData.local_price; //make string of results
+    let currencyCode = bigMacData.currency_code;
+    let dollarPrice = bigMacData.dollar_price;
+    let adjPrice = bigMacData.adj_price;
+    let lastUpdated = bigMacData.date;
+    dollarPrice = parseFloat(dollarPrice).toFixed(2); //round proces to 2 decimals
+    adjPrice = parseFloat(adjPrice).toFixed(2);
+    let bigMacString = "Local Price: " + localPrice + " " + currencyCode + "\n";
+    bigMacString += "USD Price: " + dollarPrice + " USD\n";
+    bigMacString += "GDP Adjusted Price: " + adjPrice + " USD\n";
+    bigMacString += "Last Updated: " + lastUpdated + "\n";
+    //localStorage.setItem("bigMacResult",bigMacString);
+    console.log(bigMacString)
     
 }
 
-function parseTest(){
-    pathStr = path.resolve(__dirname, "../CountryCodes.csv");
-    console.log(pathStr);
-    const file = fs.createReadStream();
+//convert a csv file to json
+function convertCSVtoJSON(filename){
+    let csvPath = path.resolve(__dirname, filename); //get file path
+    console.log(csvPath);
+    const file = fs.createReadStream(csvPath);
     var count = 0; // cache the running count
     csvString = "";
     console.log("parse");
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve,reject) => { //for async
     papa.parse(file, {
         worker: true, // Don't bog down the main thread if its a big file
-        step: function(result) {
+        step: function(result) { //read csv data line by line
             // do stuff with result
             for(let i = 0; i < result.data.length; i++){
                 //console.log(result.data[i])
@@ -67,11 +61,11 @@ function parseTest(){
             count += 1;
             
         },
-        complete: function(results, file) {
+        complete: function(results, file) { //convert csv data to json 
             console.log('parsing complete read', count, 'records.'); 
             //console.log(csvString);
             //resolve(csvString);
-            let testy = papa.parse(csvString,{ 
+            let testy = papa.parse(csvString,{ //json conversion
                 delimiter: "", // auto-detect 
                 newline: "", // auto-detect 
                 quoteChar: '"', 
@@ -88,13 +82,11 @@ function parseTest(){
     console.log("done");
     //return csvString;
 }
-//let code = await countryCode("PK");
-//console.log(code);
-//bigMacIndex("GB");
+
 async function test(){
     console.log("test");
-    let csvdata = await parseTest();
-    console.log(csvdata);
+    bigMacIndex("GB");
     console.log("test end");
 }
+
 test();
