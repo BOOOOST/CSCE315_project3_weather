@@ -1,6 +1,9 @@
 var axios = require("axios");
 const express = require('express');
 const app = express();
+var fs = require("fs");
+var papa = require("papaparse");
+var path = require("path");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -35,11 +38,11 @@ function getCountryData(countryCode){
         console.log("country data response");
         const resp = response.data;
         currencyCodes = resp.data.currencyCodes;
-        console.log(currencyCodes);
+        //console.log(currencyCodes);
         console.log("name: " + resp.data.name);
-        console.log("capital: " + resp.data.capital);
-        console.log("calling code: " + resp.data.callingCode);
-        console.log("flagUrl: " + resp.data.flagImageUri);
+        //console.log("capital: " + resp.data.capital);
+        //console.log("calling code: " + resp.data.callingCode);
+        //console.log("flagUrl: " + resp.data.flagImageUri);
         let countryName = "<br> <h1 class=\"display-3\">" + resp.data.name + "</h1> <br>";
         let countryFlag = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
         localStorage.setItem("countryName", countryName);
@@ -360,9 +363,7 @@ async function getWalkScore(cityLat, cityLon, cityName){
           walkString = "<h1 class=\"display-6\">";
           console.log(walkDescription, walkScore, bikeScore, bikeDescription, walkColor, bikeColor);
           walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
-          console.log(walkResult);
-          let walkResult = walkString;
-          localStorage.setItem("walkResult", walkResult);
+          localStorage.setItem("walkResult", walkString);
       }).catch(function (error) {
           console.error(error);
       });
@@ -384,7 +385,7 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       const resp = response.data;
       for (let i = 0; i < countryCurrencies.length; i++){
         console.log(countryCurrencies[i]);
-        console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
+        //console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
         currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "</h1><br>";
       }
     }).catch(function (error) {
@@ -407,6 +408,7 @@ async function getResult(){
     //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
     setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
@@ -441,7 +443,91 @@ async function weatherTest(){
     
 }
 
+//for big mac index
+//Convert 2 letter to 3 letter country code
+async function convertCountryCode(countryCode){
+    console.log("country code");
+    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
+    return new Promise((resolve,reject) => { //fpr aync stuff
+        //filter json to get correct country
+        var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
+        data_filter = Object.values(data_filter);
+        console.log(data_filter);
+        three_letter = data_filter[0].three_letter;
+        resolve(three_letter);
+    });
 
+}
+
+//get big mac index for country
+async function getBigMacIndex(countryCode2){
+    console.log("big mac ind");
+    let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
+    console.log("Big mac index for:",countryCode);
+    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
+    var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
+    data_filter = Object.values(data_filter);
+    let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
+    let localPrice = bigMacData.local_price; //make string of results
+    let currencyCode = bigMacData.currency_code;
+    let dollarPrice = bigMacData.dollar_price;
+    let adjPrice = bigMacData.adj_price;
+    let lastUpdated = bigMacData.date;
+    dollarPrice = parseFloat(dollarPrice).toFixed(2); //round proces to 2 decimals
+    adjPrice = parseFloat(adjPrice).toFixed(2);
+    let bigMacString = "Local Price: " + localPrice + " " + currencyCode + "\n";
+    bigMacString += "USD Price: " + dollarPrice + " USD\n";
+    bigMacString += "GDP Adjusted Price: " + adjPrice + " USD\n";
+    bigMacString += "Last Updated: " + lastUpdated + "\n";
+    localStorage.setItem("bigMacResult",bigMacString);
+    console.log(bigMacString)
+    
+}
+
+//convert a csv file to json
+function convertCSVtoJSON(filename){
+    const __dirname = path.resolve();
+    console.log("read file in:", __dirname);
+    let csvPath = path.resolve(__dirname, filename); //get file path
+    console.log("read path:",csvPath);
+    const file = fs.createReadStream(csvPath);
+    var count = 0; // cache the running count
+    csvString = "";
+    console.log("parse");
+    return new Promise((resolve,reject) => { //for async
+    papa.parse(file, {
+        worker: true, // Don't bog down the main thread if its a big file
+        step: function(result) { //read csv data line by line
+            // do stuff with result
+            for(let i = 0; i < result.data.length; i++){
+                //console.log(result.data[i])
+                csvString += (result.data[i] + ",");
+            }
+            csvString += '\n';
+            count += 1;
+            
+        },
+        complete: function(results, file) { //convert csv data to json 
+            console.log('parsing complete read', count, 'records.'); 
+            //console.log(csvString);
+            //resolve(csvString);
+            let testy = papa.parse(csvString,{ //json conversion
+                delimiter: "", // auto-detect 
+                newline: "", // auto-detect 
+                quoteChar: '"', 
+                escapeChar: '"', 
+                header: true, // creates array of {head:value} 
+                dynamicTyping: false, // convert values to numbers if possible
+                skipEmptyLines: true 
+              }); 
+            //console.log(testy.data)
+            resolve(testy.data);
+        }
+    });
+    });
+    console.log("done");
+    //return csvString;
+}
   
 function getCountryCode(){
     let countryCode = document.getElementById("country").value;
