@@ -3,7 +3,8 @@ const express = require('express');
 const app = express();
 var fs = require("fs");
 var papa = require("papaparse");
-var path = require("path");
+import path from 'path';
+const __dirname = path.resolve();
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -486,7 +487,6 @@ async function getBigMacIndex(countryCode2){
 
 //convert a csv file to json
 function convertCSVtoJSON(filename){
-    const __dirname = path.resolve();
     console.log("read file in:", __dirname);
     let csvPath = path.resolve(__dirname, filename); //get file path
     console.log("read path:",csvPath);

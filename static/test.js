@@ -20,7 +20,7 @@ async function convertCountryCode(countryCode){
 async function bigMacIndex(countryCode2){
     let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
     console.log("Big mac index for:",countryCode);
-    let jsonObj = await convertCSVtoJSON("big-mac-full-index.csv"); //load csv file
+    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
     var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
     data_filter = Object.values(data_filter);
     let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
