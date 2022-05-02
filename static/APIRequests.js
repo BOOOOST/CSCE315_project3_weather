@@ -231,7 +231,7 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         console.log(weatherString);
 
         let weatherResult = weatherString;
-        localStorage.setItem("weatherResult", weatherResult);
+        localStorage.setItem("weather", weatherResult);
         
     }).catch(function (error) {
         console.error(error);
@@ -421,17 +421,18 @@ async function getResult(){
     setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
     if(weather.checked){
         setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
+        //weatherTest();
     }
     if(currency.checked){
-        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500);
+        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 3500);
     }
     if(transport.checked){
-        setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+        setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 4500);
     }
     //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
     //setTimeout(() => {weatherTest(); }, 500);
-    setTimeout(() => {progressBar(3000); }, 500); 
-    setTimeout(() => { window.open('results.html','_self').focus();}, 2500);
+    setTimeout(() => {progressBar(3000); }, 2000); 
+    setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
 async function weatherTest(){
