@@ -1,10 +1,9 @@
 var axios = require("axios");
-const express = require('express');
+const express = require("express");
 const app = express();
 var fs = require("fs");
 var papa = require("papaparse");
-import path from 'path';
-const __dirname = path.resolve();
+var path = require("path");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -319,7 +318,7 @@ async function historicalWeather(cityLat, cityLon, startDate, endDate){
 
 async function getWalkScore(cityLat, cityLon, cityName){
     console.log("WalkScore Function");
-    var walkResult = document.getElementById("walkResult");
+    //var walkResult = document.getElementById("walkResult");
     const options = {
         method: 'GET',
         url: 'https://walk-score.p.rapidapi.com/score',
@@ -338,31 +337,38 @@ async function getWalkScore(cityLat, cityLon, cityName){
         }
       };
       
+      //TODO: fix bike score
       axios.request(options).then(function (response) {
           let resp = response.data;
           console.log(resp);
           let walkScore = resp.walkscore;
           let walkDescription = resp.description;
-          let bikeScore = resp.bike.score;
-          let bikeDescription = resp.bike.description;
-          let walkColor = 'green';
-          if(walkScore<=50){
+          let bikeScore = -1; //resp.bike.score;
+          let bikeDescription = "Not Available";//resp.bike.description;
+          let walkColor = 'red';
+          try{
+            bikeScore = resp.bike.score;
+            bikeDescription = resp.bike.description;
+          }
+          catch(e){
+            console.log("Bike Score Not Available");
+          }
+          if(walkScore <= 50){
             walkColor = 'red';
           }
-          else if(walkScore <= 75)
-          {
+          else if(walkScore <= 75){
             walkColor = 'yellow';
           }
+          
           let bikeColor = 'green';
-          if(bikeScore<=50){
+          if(bikeScore <= 50){
             bikeColor = 'red';
           }
-          else if(bikeScore <= 75)
-          {
+          else if(bikeScore <= 75) {
             bikeColor = 'orange';
           }
           walkString = "<h1 class=\"display-6\">";
-          console.log(walkDescription, walkScore, bikeScore, bikeDescription, walkColor, bikeColor);
+          console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor);
           walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
           localStorage.setItem("walkResult", walkString);
       }).catch(function (error) {
@@ -448,7 +454,7 @@ async function weatherTest(){
 //Convert 2 letter to 3 letter country code
 async function convertCountryCode(countryCode){
     console.log("country code");
-    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
+    let jsonObj = await convertCSVtoJSON("C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv"); //convert csv to json
     return new Promise((resolve,reject) => { //fpr aync stuff
         //filter json to get correct country
         var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
@@ -465,7 +471,7 @@ async function getBigMacIndex(countryCode2){
     console.log("big mac ind");
     let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
     console.log("Big mac index for:",countryCode);
-    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
+    let jsonObj = await convertCSVtoJSON("C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big_mac_full_index.csv"); //load csv file
     var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
     data_filter = Object.values(data_filter);
     let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
@@ -486,10 +492,10 @@ async function getBigMacIndex(countryCode2){
 }
 
 //convert a csv file to json
-function convertCSVtoJSON(filename){
-    console.log("read file in:", __dirname);
-    let csvPath = path.resolve(__dirname, filename); //get file path
-    console.log("read path:",csvPath);
+async function convertCSVtoJSON(csvPath){
+    //console.log("read file in:", __dirname);
+    //let csvPath = path.resolve(__dirname, filename); //get file path
+    //console.log("read path:",csvPath);
     const file = fs.createReadStream(csvPath);
     var count = 0; // cache the running count
     csvString = "";
