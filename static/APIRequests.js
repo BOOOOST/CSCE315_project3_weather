@@ -96,9 +96,6 @@ async function getCityData(searchCity, countryCode){
 
 //get forecast with cityLat, cityLon (latitude, longtitude) as float
 async function getForecast(cityLat, cityLon, startDate, endDate){
-    console.log(cityLat);
-    console.log(cityLon);
-    var weatherResult = document.getElementById("weatherResult");
     var weatherString = "<br>";
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     let futureDates = [];
@@ -212,10 +209,10 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
             else if(high >= 60){
                 thermometer = "<img src=\"mediumThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
-            else if(low <= 30){
+            else if(low <= 32){
                 thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
-            else if(low <= 40){
+            else if(low <= 45){
                 thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
 
@@ -240,6 +237,8 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
     }).catch(function (error) {
         console.error(error);
     });
+    weatherTest(futureDates, futureLowTemps, futureHighTemps);
+    return [futureDates, futureLowTemps, futureHighTemps, futurePrecip];
 }
 
 //get historical weather data between dates
@@ -337,7 +336,6 @@ async function getWalkScore(cityLat, cityLon, cityName){
         }
       };
       
-      //TODO: fix bike score
       axios.request(options).then(function (response) {
           let resp = response.data;
           console.log(resp);
@@ -416,23 +414,23 @@ async function getResult(){
     if(weather.checked){
 
     }
-    //var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    //console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    //setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
-    //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
-    //setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
+    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
+    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
+    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
+    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
     setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
     setTimeout(() => {progressBar(3000); }, 500); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
-async function weatherTest(){
+async function weatherTest(date, low, high){
     let weatherString = "";
-    let high = [43.4, 67.9, 23.6];
-    let low = [41.4, 61.9, 21.6];
-    let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
-    for(let i = 0; i < 3; i++){
+    //let high = [43.4, 67.9, 23.6];
+    //let low = [41.4, 61.9, 21.6];
+    //let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
+    for(let i = 0; i < date.length; i++){
         let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         if(high[i] >= 90){
             thermometer = "<img src=\"veryhotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
