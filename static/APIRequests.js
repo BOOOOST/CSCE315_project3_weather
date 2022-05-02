@@ -97,7 +97,7 @@ async function getCityData(searchCity, countryCode){
 
 //get forecast with cityLat, cityLon (latitude, longtitude) as float
 async function getForecast(cityLat, cityLon, startDate, endDate){
-    var weatherString = "<br>";
+    var weatherString = "<br> <div class = \"resultBox\"> <div class = \"row\"> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-weight: bolder;\"> Weather Results </h1> </div> </div>";
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     let futureDates = [];
     let futureLowTemps = [];
@@ -217,23 +217,21 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
                 thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
 
-            weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low + " - " + high + thermometer + "</h1></div></div>";
+            weatherString += "<div class = \"row\" style = \"background-color: white; margin: 50px; border-radius: 25px; border: 2px solid #51534d;\"> <div class = \"col-md-4 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-size: 50px; font-weight: bold;\">" + date + " </h1></div> <div class = \"col-md-8\"> <h1 class=\"display-6\">" + conditions + "<span>&#8594;</span>" + low + "°F - " + high + "°F " + thermometer + "</h1></div></div>";
 
         }
 
-        //console.log(weatherString);
-        let weatherResult = weatherString;
-        localStorage.setItem("weatherResult", weatherResult);
         //compute averages
         
-        avgLowTemp = arrayAvg(futureLowTemps);
-        avgHighTemp = arrayAvg(futureHighTemps);
-        avgPrecip = arrayAvg(futurePrecip);
+        avgLowTemp = arrayAvg(futureLowTemps).toPrecision(3);
+        avgHighTemp = arrayAvg(futureHighTemps).toPrecision(3);
+        avgPrecip = arrayAvg(futurePrecip).toPrecision(3);
         console.log("\navgs:", avgLowTemp, avgHighTemp, avgPrecip);
-        weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
-        "Avg High Temp: " + avgHighTemp + "<br>" +
-        "Avg Precipitation: " + avgPrecip;
-        //console.log(weatherString);
+        weatherString += "<div class = \"row\"><div class = \"col-md-12 d-flex justify-content-center\"><h1 class=\"display-6\"> Average Low Temperature: " + avgLowTemp + "°F <br> Average High Temperature: " + avgHighTemp + "°F <br> Average Precipitation: " + avgPrecip + " inches</h1></div></div></div>";
+        console.log(weatherString);
+
+        let weatherResult = weatherString;
+        localStorage.setItem("weatherResult", weatherResult);
         
     }).catch(function (error) {
         console.error(error);
@@ -343,11 +341,15 @@ async function getWalkScore(cityLat, cityLon, cityName){
           let walkDescription = resp.description;
           let bikeScore = -1; //resp.bike.score;
           let bikeDescription = "Not Available";//resp.bike.description;
+          let transportScore = -1; //resp.bike.score;
+          let transportDescription = "Not Available";//resp.bike.description;
           let walkColor = 'green';
           let hasBikeScore = true;
           try{
             bikeScore = resp.bike.score;
             bikeDescription = resp.bike.description;
+            transportScore = resp.transit.score;
+            transportDescription = resp.transit.description;
           }
           catch(e){
             console.log("Bike Score Not Available");
@@ -357,7 +359,7 @@ async function getWalkScore(cityLat, cityLon, cityName){
             walkColor = 'red';
           }
           else if(walkScore <= 75){
-            walkColor = 'yellow';
+            walkColor = 'orange';
           }
           
           let bikeColor = 'green';
@@ -367,14 +369,16 @@ async function getWalkScore(cityLat, cityLon, cityName){
           else if(bikeScore <= 75) {
             bikeColor = 'orange';
           }
-          walkString = "<h1 class=\"display-6\">";
-          console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor);
+          walkString = "<div class = \"resultBox\"><div class = \"row mt-5\"> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-weight: bolder;\"> Getting Around </h1> </div>";
+          walkString += "<div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">";
+          console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor, transportScore, transportDescription);
           if(hasBikeScore == true){
-            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1></div></div></div>";
           }else{
-            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "</h1>";
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "</h1></div></div></div>";
           }
 
+          console.log(walkString);
           localStorage.setItem("walkResult", walkString);
       }).catch(function (error) {
           console.error(error);
@@ -392,13 +396,13 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       }
     };
     
-    currencyString = "<h1 class=\"display-6\">";
+    currencyString = "<div class = \"resultBox\"> <div class = \"row mt-5\"> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-weight: bolder;\"> Currency Rates </h1> </div> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">";
     await axios.request(currencyOptions).then(function (response) {
       const resp = response.data;
       for (let i = 0; i < countryCurrencies.length; i++){
         console.log(countryCurrencies[i]);
         //console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
-        currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "</h1><br>";
+        currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "</h1></div></div></div><br>";
       }
     }).catch(function (error) {
       console.error(error);
@@ -412,16 +416,20 @@ async function getResult(){
     var weather = document.getElementById("weather");
     let dateRange = getDatesAsDate();
 
-    //var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    //console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    //setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
+    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
+    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
     if(weather.checked){
-        //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
+        setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     }
-    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
-    //setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    if(currency.checked){
+        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500);
+    }
+    if(transport.checked){
+        setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    }
     //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
-    setTimeout(() => {weatherTest(); }, 500);
+    //setTimeout(() => {weatherTest(); }, 500);
     setTimeout(() => {progressBar(3000); }, 500); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
@@ -450,10 +458,14 @@ async function weatherTest(){
             thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         }
 
+        weatherString += "<div class = \"row\" style = \"background-color: white; margin:50px;\"> <div class = \"col-md-4 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-8\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
+
         //TODO: make progress bar work
+        /*
         let percipBar = 100*(precip[i]/2);
         weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
         weatherString += "<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"" + percipBar + "\" aria-valuemin=\"0\" aria-valuemax=\"100\">Precipitation Bar</div>";
+        */
     }
     console.log(weatherString);
     localStorage.setItem("weatherResult", weatherString);
@@ -594,4 +606,10 @@ async function progressBar(loadTime){
     }
 
 }
+
+async function resultsButton(){
+    location.href = 'index.html';
+    localStorage.clear();
+}
+
 
