@@ -17,6 +17,7 @@ function getCurrentDate(){
 //set the minimum end date to the start date to get a date range
 function setMinEndDate(){
     let minEndDay = document.getElementById("startDate").value;
+    document.getElementById("startDate").setAttribute("min", getCurrentDate());
     document.getElementById("endDate").setAttribute("min", minEndDay);
     console.log(minEndDay);
     return minEndDay;

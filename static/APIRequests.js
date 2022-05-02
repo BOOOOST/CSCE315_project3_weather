@@ -4,6 +4,7 @@ const app = express();
 var fs = require("fs");
 var papa = require("papaparse");
 var path = require("path");
+var process = require("process");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -232,12 +233,11 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
         "Avg High Temp: " + avgHighTemp + "<br>" +
         "Avg Precipitation: " + avgPrecip;
-        console.log(weatherString);
+        //console.log(weatherString);
         
     }).catch(function (error) {
         console.error(error);
     });
-    weatherTest(futureDates, futureLowTemps, futureHighTemps);
     return [futureDates, futureLowTemps, futureHighTemps, futurePrecip];
 }
 
@@ -343,7 +343,7 @@ async function getWalkScore(cityLat, cityLon, cityName){
           let walkDescription = resp.description;
           let bikeScore = -1; //resp.bike.score;
           let bikeDescription = "Not Available";//resp.bike.description;
-          let walkColor = 'red';
+          let walkColor = 'green';
           let hasBikeScore = true;
           try{
             bikeScore = resp.bike.score;
@@ -411,25 +411,27 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
 async function getResult(){
     var weather = document.getElementById("weather");
     let dateRange = getDatesAsDate();
-    if(weather.checked){
 
+    //var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
+    //console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
+    //setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    if(weather.checked){
+        //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     }
-    var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
-    setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
-    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
-    setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
+    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
+    //setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
+    setTimeout(() => {weatherTest(); }, 500);
     setTimeout(() => {progressBar(3000); }, 500); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
-async function weatherTest(date, low, high){
+async function weatherTest(){
     let weatherString = "";
-    //let high = [43.4, 67.9, 23.6];
-    //let low = [41.4, 61.9, 21.6];
-    //let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
+    let high = [43.4, 67.9, 23.6];
+    let low = [41.4, 61.9, 21.6];
+    let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
+    let precip = [0, 0.2, 0.76];
     for(let i = 0; i < date.length; i++){
         let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         if(high[i] >= 90){
@@ -448,11 +450,13 @@ async function weatherTest(date, low, high){
             thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         }
 
+        //TODO: make progress bar work
+        let percipBar = 100*(precip[i]/2);
         weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
+        weatherString += "<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"" + percipBar + "\" aria-valuemin=\"0\" aria-valuemax=\"100\">Precipitation Bar</div>";
     }
-    //console.log(weatherString);
-    let weatherTestResult = weatherString;
-    localStorage.setItem("weatherResult", weatherTestResult);
+    console.log(weatherString);
+    localStorage.setItem("weatherResult", weatherString);
     
 }
 
@@ -460,7 +464,7 @@ async function weatherTest(date, low, high){
 //Convert 2 letter to 3 letter country code
 async function convertCountryCode(countryCode){
     console.log("country code");
-    let jsonObj = await convertCSVtoJSON("C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/CountryCodes.csv"); //convert csv to json
+    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
     return new Promise((resolve,reject) => { //fpr aync stuff
         //filter json to get correct country
         var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
@@ -477,7 +481,7 @@ async function getBigMacIndex(countryCode2){
     console.log("big mac ind");
     let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
     console.log("Big mac index for:",countryCode);
-    let jsonObj = await convertCSVtoJSON("C:/Users/hamza/Documents/A&M/CSCE315/csce315_project3/static/big_mac_full_index.csv"); //load csv file
+    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
     var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
     data_filter = Object.values(data_filter);
     let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
@@ -498,10 +502,10 @@ async function getBigMacIndex(countryCode2){
 }
 
 //convert a csv file to json
-async function convertCSVtoJSON(csvPath){
-    //console.log("read file in:", __dirname);
-    //let csvPath = path.resolve(__dirname, filename); //get file path
-    //console.log("read path:",csvPath);
+async function convertCSVtoJSON(filename){
+    console.log("read:",filename);
+    let csvPath = path.resolve(__dirname, filename);
+    console.log("read path:",csvPath);
     const file = fs.createReadStream(csvPath);
     var count = 0; // cache the running count
     csvString = "";
