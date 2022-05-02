@@ -6,6 +6,6 @@ window.onload = function(){
     document.getElementById("weatherResult").innerHTML = localStorage.getItem("weatherResult");
     document.getElementById("currencyResult").innerHTML = localStorage.getItem("currencyResult");
     document.getElementById("walkResult").innerHTML = localStorage.getItem("walkResult");
-    //document.getElementById("bigMacResult").innerHTML = localStorage.getItem("bigMacData");
+    document.getElementById("bigMacResult").innerHTML = localStorage.getItem("bigMacResult");
     
 }

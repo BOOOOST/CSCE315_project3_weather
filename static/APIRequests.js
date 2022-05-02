@@ -1,6 +1,10 @@
 var axios = require("axios");
-const express = require('express');
+const express = require("express");
 const app = express();
+var fs = require("fs");
+var papa = require("papaparse");
+var path = require("path");
+var process = require("process");
 
 var geoDBhost = 'wft-geo-db.p.rapidapi.com';
 var geoDBkey = 'd3f83f8df3mshc7c926e48db29b9p18e5c1jsn83fcb7d5dd88';
@@ -35,11 +39,11 @@ function getCountryData(countryCode){
         console.log("country data response");
         const resp = response.data;
         currencyCodes = resp.data.currencyCodes;
-        console.log(currencyCodes);
+        //console.log(currencyCodes);
         console.log("name: " + resp.data.name);
-        console.log("capital: " + resp.data.capital);
-        console.log("calling code: " + resp.data.callingCode);
-        console.log("flagUrl: " + resp.data.flagImageUri);
+        //console.log("capital: " + resp.data.capital);
+        //console.log("calling code: " + resp.data.callingCode);
+        //console.log("flagUrl: " + resp.data.flagImageUri);
         let countryName = "<br> <h1 class=\"display-3\">" + resp.data.name + "</h1> <br>";
         let countryFlag = "<img id = \"flagIMG\" src=\"" + resp.data.flagImageUri + "\" style=\"width:400px;height:auto;\">";
         localStorage.setItem("countryName", countryName);
@@ -93,9 +97,6 @@ async function getCityData(searchCity, countryCode){
 
 //get forecast with cityLat, cityLon (latitude, longtitude) as float
 async function getForecast(cityLat, cityLon, startDate, endDate){
-    console.log(cityLat);
-    console.log(cityLon);
-    var weatherResult = document.getElementById("weatherResult");
     var weatherString = "<br>";
     let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
     let futureDates = [];
@@ -209,10 +210,10 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
             else if(high >= 60){
                 thermometer = "<img src=\"mediumThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
-            else if(low <= 30){
+            else if(low <= 32){
                 thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
-            else if(low <= 40){
+            else if(low <= 45){
                 thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
 
@@ -232,11 +233,12 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         weatherString += "Avg Low Temp: " + avgLowTemp + "<br>" +
         "Avg High Temp: " + avgHighTemp + "<br>" +
         "Avg Precipitation: " + avgPrecip;
-        console.log(weatherString);
+        //console.log(weatherString);
         
     }).catch(function (error) {
         console.error(error);
     });
+    return [futureDates, futureLowTemps, futureHighTemps, futurePrecip];
 }
 
 //get historical weather data between dates
@@ -315,7 +317,7 @@ async function historicalWeather(cityLat, cityLon, startDate, endDate){
 
 async function getWalkScore(cityLat, cityLon, cityName){
     console.log("WalkScore Function");
-    var walkResult = document.getElementById("walkResult");
+    //var walkResult = document.getElementById("walkResult");
     const options = {
         method: 'GET',
         url: 'https://walk-score.p.rapidapi.com/score',
@@ -339,30 +341,41 @@ async function getWalkScore(cityLat, cityLon, cityName){
           console.log(resp);
           let walkScore = resp.walkscore;
           let walkDescription = resp.description;
-          let bikeScore = resp.bike.score;
-          let bikeDescription = resp.bike.description;
+          let bikeScore = -1; //resp.bike.score;
+          let bikeDescription = "Not Available";//resp.bike.description;
           let walkColor = 'green';
-          if(walkScore<=50){
+          let hasBikeScore = true;
+          try{
+            bikeScore = resp.bike.score;
+            bikeDescription = resp.bike.description;
+          }
+          catch(e){
+            console.log("Bike Score Not Available");
+            hasBikeScore = false;
+          }
+          if(walkScore <= 50){
             walkColor = 'red';
           }
-          else if(walkScore <= 75)
-          {
+          else if(walkScore <= 75){
             walkColor = 'yellow';
           }
+          
           let bikeColor = 'green';
-          if(bikeScore<=50){
+          if(bikeScore <= 50){
             bikeColor = 'red';
           }
-          else if(bikeScore <= 75)
-          {
+          else if(bikeScore <= 75) {
             bikeColor = 'orange';
           }
           walkString = "<h1 class=\"display-6\">";
-          console.log(walkDescription, walkScore, bikeScore, bikeDescription, walkColor, bikeColor);
-          walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
-          console.log(walkResult);
-          let walkResult = walkString;
-          localStorage.setItem("walkResult", walkResult);
+          console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor);
+          if(hasBikeScore == true){
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
+          }else{
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "</h1>";
+          }
+
+          localStorage.setItem("walkResult", walkString);
       }).catch(function (error) {
           console.error(error);
       });
@@ -384,7 +397,7 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
       const resp = response.data;
       for (let i = 0; i < countryCurrencies.length; i++){
         console.log(countryCurrencies[i]);
-        console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
+        //console.log(1,baseCurrency,"=",resp.rates[countryCurrencies[i]],countryCurrencies[i]);
         currencyString += "1 " + baseCurrency + " = " + resp.rates[countryCurrencies[i]] + " " + countryCurrencies[i] + "</h1><br>";
       }
     }).catch(function (error) {
@@ -398,15 +411,18 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
 async function getResult(){
     var weather = document.getElementById("weather");
     let dateRange = getDatesAsDate();
-    if(weather.checked){
 
+    //var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
+    //console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
+    //setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    if(weather.checked){
+        //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
     }
-    var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
-    //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
-    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
+    //setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
+    setTimeout(() => {weatherTest(); }, 500);
+    setTimeout(() => {progressBar(3000); }, 500); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
@@ -415,7 +431,8 @@ async function weatherTest(){
     let high = [43.4, 67.9, 23.6];
     let low = [41.4, 61.9, 21.6];
     let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
-    for(let i = 0; i < 3; i++){
+    let precip = [0, 0.2, 0.76];
+    for(let i = 0; i < date.length; i++){
         let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         if(high[i] >= 90){
             thermometer = "<img src=\"veryhotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
@@ -433,15 +450,100 @@ async function weatherTest(){
             thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
         }
 
+        //TODO: make progress bar work
+        let percipBar = 100*(precip[i]/2);
         weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
+        weatherString += "<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"" + percipBar + "\" aria-valuemin=\"0\" aria-valuemax=\"100\">Precipitation Bar</div>";
     }
-    //console.log(weatherString);
-    let weatherTestResult = weatherString;
-    localStorage.setItem("weatherResult", weatherTestResult);
+    console.log(weatherString);
+    localStorage.setItem("weatherResult", weatherString);
     
 }
 
+//for big mac index
+//Convert 2 letter to 3 letter country code
+async function convertCountryCode(countryCode){
+    console.log("country code");
+    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
+    return new Promise((resolve,reject) => { //fpr aync stuff
+        //filter json to get correct country
+        var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
+        data_filter = Object.values(data_filter);
+        console.log(data_filter);
+        three_letter = data_filter[0].three_letter;
+        resolve(three_letter);
+    });
 
+}
+
+//get big mac index for country
+async function getBigMacIndex(countryCode2){
+    console.log("big mac ind");
+    let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
+    console.log("Big mac index for:",countryCode);
+    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
+    var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
+    data_filter = Object.values(data_filter);
+    let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
+    let localPrice = bigMacData.local_price; //make string of results
+    let currencyCode = bigMacData.currency_code;
+    let dollarPrice = bigMacData.dollar_price;
+    let adjPrice = bigMacData.adj_price;
+    let lastUpdated = bigMacData.date;
+    dollarPrice = parseFloat(dollarPrice).toFixed(2); //round proces to 2 decimals
+    adjPrice = parseFloat(adjPrice).toFixed(2);
+    let bigMacString = "Local Price: " + localPrice + " " + currencyCode + "\n";
+    bigMacString += "USD Price: " + dollarPrice + " USD\n";
+    bigMacString += "GDP Adjusted Price: " + adjPrice + " USD\n";
+    bigMacString += "Last Updated: " + lastUpdated + "\n";
+    localStorage.setItem("bigMacResult",bigMacString);
+    console.log(bigMacString)
+    
+}
+
+//convert a csv file to json
+async function convertCSVtoJSON(filename){
+    console.log("read:",filename);
+    let csvPath = path.resolve(__dirname, filename);
+    console.log("read path:",csvPath);
+    const file = fs.createReadStream(csvPath);
+    var count = 0; // cache the running count
+    csvString = "";
+    console.log("parse");
+    return new Promise((resolve,reject) => { //for async
+    papa.parse(file, {
+        worker: true, // Don't bog down the main thread if its a big file
+        step: function(result) { //read csv data line by line
+            // do stuff with result
+            for(let i = 0; i < result.data.length; i++){
+                //console.log(result.data[i])
+                csvString += (result.data[i] + ",");
+            }
+            csvString += '\n';
+            count += 1;
+            
+        },
+        complete: function(results, file) { //convert csv data to json 
+            console.log('parsing complete read', count, 'records.'); 
+            //console.log(csvString);
+            //resolve(csvString);
+            let testy = papa.parse(csvString,{ //json conversion
+                delimiter: "", // auto-detect 
+                newline: "", // auto-detect 
+                quoteChar: '"', 
+                escapeChar: '"', 
+                header: true, // creates array of {head:value} 
+                dynamicTyping: false, // convert values to numbers if possible
+                skipEmptyLines: true 
+              }); 
+            //console.log(testy.data)
+            resolve(testy.data);
+        }
+    });
+    });
+    console.log("done");
+    //return csvString;
+}
   
 function getCountryCode(){
     let countryCode = document.getElementById("country").value;
@@ -480,5 +582,16 @@ function getDatesAsDate(){
     lastYearEnd.setFullYear(endDateDate.getFullYear() -1);
     console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
     return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
+}
+
+async function progressBar(loadTime){
+    let bar = document.getElementById("loadingbar");
+    let barWidth = 0;
+    while(barWidth < 100){
+        await new Promise(r => setTimeout(r, loadTime/1000));
+        barWidth += 1;
+        bar.style.width = barWidth.toString() + "%";
+    }
+
 }
 
