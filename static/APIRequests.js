@@ -431,7 +431,7 @@ async function getResult(){
     //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
     //setTimeout(() => {weatherTest(); }, 500);
     setTimeout(() => {progressBar(3000); }, 500); 
-    setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
+    setTimeout(() => { window.open('results.html','_self').focus();}, 2500);
 }
 
 async function weatherTest(){
