@@ -346,12 +346,14 @@ async function getWalkScore(cityLat, cityLon, cityName){
           let bikeScore = -1; //resp.bike.score;
           let bikeDescription = "Not Available";//resp.bike.description;
           let walkColor = 'red';
+          let hasBikeScore = true;
           try{
             bikeScore = resp.bike.score;
             bikeDescription = resp.bike.description;
           }
           catch(e){
             console.log("Bike Score Not Available");
+            hasBikeScore = false;
           }
           if(walkScore <= 50){
             walkColor = 'red';
@@ -369,7 +371,12 @@ async function getWalkScore(cityLat, cityLon, cityName){
           }
           walkString = "<h1 class=\"display-6\">";
           console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor);
-          walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
+          if(hasBikeScore == true){
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "<br>" + "<div style=\"color:" + bikeColor + ";float:left;\">" + bikeScore + "</div>" +  "<span>&#8594;</span>" + bikeDescription + "<br> </h1>";
+          }else{
+            walkString += "<div style=\"color:" + walkColor + ";float:left;\">" + walkScore + "</div> " + "<span>&#8594;</span>"+ walkDescription + "</h1>";
+          }
+
           localStorage.setItem("walkResult", walkString);
       }).catch(function (error) {
           console.error(error);
@@ -409,13 +416,14 @@ async function getResult(){
     if(weather.checked){
 
     }
-    var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
-    console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    //var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
+    //console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
+    //setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
     //setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
-    setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
-    setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
+    //setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 1500); 
+    //setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 1000);
     setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
+    setTimeout(() => {progressBar(3000); }, 500); 
     setTimeout(() => { window.open('results.html','_blank').focus();}, 2500);
 }
 
@@ -572,5 +580,16 @@ function getDatesAsDate(){
     lastYearEnd.setFullYear(endDateDate.getFullYear() -1);
     console.log("dates:", startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd));
     return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
+}
+
+async function progressBar(loadTime){
+    let bar = document.getElementById("loadingbar");
+    let barWidth = 0;
+    while(barWidth < 100){
+        await new Promise(r => setTimeout(r, loadTime/1000));
+        barWidth += 1;
+        bar.style.width = barWidth.toString() + "%";
+    }
+
 }
 
