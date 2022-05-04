@@ -87,7 +87,10 @@ async function getCityData(searchCity, countryCode){
         cityLon = resp.data[idx].longitude;
         console.log("lon:", cityLon);
         console.log("population:", resp.data[idx].population);
-        let cityResult = "<h1 class=\"display-2\">" + resp.data[idx].name + "</h1>";
+        let cityResult = "<h1 class=\"display-2\" style=\"text-align: center;\">" + resp.data[idx].name + "</h1>\n";
+        cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\"> State/ Province: " + resp.data[idx].region  + "</h4>\n";
+        cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\">" + cityLat.toFixed(4) + ", " + cityLon.toFixed(4)  + "</h4>\n";
+        cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\"> Population: " + resp.data[idx].population + "</h4>\n"
         localStorage.setItem("cityResult", cityResult);
     }).catch(function (error) {
         console.error(error);
@@ -217,7 +220,7 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
                 thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
             }
 
-            weatherString += "<div class = \"row\" style = \"background-color: white; margin: 50px; border-radius: 25px; border: 2px solid #51534d;\"> <div class = \"col-md-4 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-size: 50px; font-weight: bold;\">" + date + " </h1></div> <div class = \"col-md-8\"> <h1 class=\"display-6\">" + conditions + "<span>&#8594;</span>" + low + "°F - " + high + "°F " + thermometer + "</h1></div></div>";
+            weatherString += "<div class = \"row\" style = \"background-color: white; margin: 50px; border-radius: 25px; border: 2px solid #51534d;\"> <div class = \"col-md-4 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-size: 50px; font-weight: bold;\">" + convertToUSdate(date) + " </h1></div> <div class = \"col-md-8\"> <h1 class=\"display-6\">" + conditions + "<span>&#8594;</span>" + low + "°F - " + high + "°F " + thermometer + "</h1></div></div>";
 
         }
 
@@ -237,80 +240,6 @@ async function getForecast(cityLat, cityLon, startDate, endDate){
         console.error(error);
     });
     return [futureDates, futureLowTemps, futureHighTemps, futurePrecip];
-}
-
-//get historical weather data between dates
-//date format: yyyy-mm-dd ('2020-04-01')
-//cityLat, cityLon are latitude, loingtitude as float, start date, end date are date range to get weather
-async function historicalWeather(cityLat, cityLon, startDate, endDate){
-    let weatherDataCoords = cityLat.toString() + ',' + cityLon.toString();
-    console.log("getting historical weather for:", weatherDataCoords);
-
-    const optionsHistoricWeather = {
-    method: 'GET',
-    url: 'https://visual-crossing-weather.p.rapidapi.com/history',
-    params: {
-        startDateTime: startDate + 'T00:00:00',
-        aggregateHours: '24',
-        location: weatherDataCoords,
-        endDateTime: endDate + 'T00:00:00',
-        unitGroup: 'us',
-        contentType: 'json',
-        shortColumnNames: '0'
-    },
-    headers: {
-        'X-RapidAPI-Host': weatherHost,
-        'X-RapidAPI-Key': weatherKey
-    }
-    };
-
-    let historicalDates = [];
-    let historicalLowTemps = [];
-    let historicalHighTemps = [];
-    let historicalPrecip = [];
-    let historicalConditions = [];
-    let avgLowTemp = 200
-    let avgHighTemp = 200;
-    let avgPrecip = 200;
-    await axios.request(optionsHistoricWeather).then(function (response) {
-        const resp = response.data;
-        //console.log(resp);
-        let historicalData = resp.locations[weatherDataCoords].values;
-        //console.log(historicalData);
-        for(day in historicalData){
-            console.log("day data:");
-            //console.log(historicalData[day]);
-            let date = historicalData[day].datetimeStr.toString().substring(0,10);
-            //console.log("\ndate:", date);
-            historicalDates.push(date);
-
-            let lowTemp = historicalData[day].mint;
-            //console.log("low temp:", lowTemp);
-            historicalLowTemps.push(lowTemp);
-
-            let maxTemp = historicalData[day].maxt;
-            //console.log("high temp:", maxTemp);
-            historicalHighTemps.push(maxTemp);
-
-            let precipitation = historicalData[day].precip;
-            //console.log("precipitation: ", precipitation);
-            historicalPrecip.push(precipitation);
-
-            let conditions = historicalData[day].conditions;
-            //console.log("conditions: ", conditions);
-            historicalConditions.push(conditions);
-        }
-
-        //compute averages
-        avgLowTemp = arrayAvg(historicalLowTemps);
-        avgHighTemp = arrayAvg(historicalHighTemps);
-        avgPrecip = arrayAvg(historicalPrecip);
-        console.log("avgs:", avgLowTemp, avgHighTemp, avgPrecip);
-
-    }).catch(function (error) {
-        console.error(error);
-    });
-    return [avgLowTemp, avgHighTemp, avgPrecip];
 }
 
 async function getWalkScore(cityLat, cityLon, cityName){
@@ -369,7 +298,8 @@ async function getWalkScore(cityLat, cityLon, cityName){
           else if(bikeScore <= 75) {
             bikeColor = 'orange';
           }
-          walkString = "<div class = \"resultBox\"><div class = \"row mt-5\"> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-weight: bolder;\"> Getting Around </h1> </div>";
+          let walkScoreLink = "<a class=\"display-6\" style=\"font-weight: bold;color: #212529;text-decoration: none;\" href=\"https://www.redfin.com/how-walk-score-works\">Walk Score</a>";
+          let walkString = "<div class = \"resultBox\"><div class = \"row mt-5\"> <div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\" style=\"font-weight: bold;\">" + walkScoreLink +  "</h1> </div>";
           walkString += "<div class=\"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">";
           console.log("walk score:",walkDescription, walkScore, "| bike score:",bikeScore, bikeDescription, walkColor, bikeColor, transportScore, transportDescription);
           if(hasBikeScore == true){
@@ -413,26 +343,29 @@ async function getCurrencyConversion(baseCurrency, countryCurrencies){
 }
 
 async function getResult(){
-    var weather = document.getElementById("weather");
+
+    let weather = document.getElementById("weather");
+    let currency = document.getElementById("currency");
+    let transport = document.getElementById("transport");
     let dateRange = getDatesAsDate();
 
     var latlon = await getCityData(document.getElementById("cityname").value, getCountryCode());
     console.log('lat',latlon[0],'lon:',latlon[1], 'city name: ', document.getElementById("cityname").value);
-    setTimeout(() => { getCountryData(getCountryCode()); }, 1000);
+    setTimeout(() => { getCountryData(getCountryCode()); }, 1500);
     if(weather.checked){
         setTimeout(() => { getForecast(latlon[0], latlon[1], dateRange[0], dateRange[1]); }, 2500);
         //weatherTest();
     }
     if(currency.checked){
-        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 3500);
+        setTimeout(() => { getCurrencyConversion('USD', currencyCodes); }, 2500);
     }
     if(transport.checked){
-        setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 4500);
+        setTimeout(() => { getWalkScore(latlon[0], latlon[1], document.getElementById("cityname").value); }, 2500);
     }
     //setTimeout(() => { getBigMacIndex(getCountryCode()); }, 1000); 
     //setTimeout(() => {weatherTest(); }, 500);
-    setTimeout(() => {progressBar(3000); }, 2000); 
-    setTimeout(() => { window.open('results.html','_self').focus();}, 5000);
+    setTimeout(() => {progressBar(4000); }, 500); 
+    setTimeout(() => { window.open('results.html','_self').focus();}, 4000);
 }
 
 async function weatherTest(){
@@ -471,91 +404,6 @@ async function weatherTest(){
     console.log(weatherString);
     localStorage.setItem("weatherResult", weatherString);
     
-}
-
-//for big mac index
-//Convert 2 letter to 3 letter country code
-async function convertCountryCode(countryCode){
-    console.log("country code");
-    let jsonObj = await convertCSVtoJSON("CountryCodes.csv"); //convert csv to json
-    return new Promise((resolve,reject) => { //fpr aync stuff
-        //filter json to get correct country
-        var data_filter = jsonObj.filter( element => element.two_letter == countryCode);
-        data_filter = Object.values(data_filter);
-        console.log(data_filter);
-        three_letter = data_filter[0].three_letter;
-        resolve(three_letter);
-    });
-
-}
-
-//get big mac index for country
-async function getBigMacIndex(countryCode2){
-    console.log("big mac ind");
-    let countryCode = await convertCountryCode(countryCode2); //convert 2 letter code to 3 letter
-    console.log("Big mac index for:",countryCode);
-    let jsonObj = await convertCSVtoJSON("big_mac_full_index.csv"); //load csv file
-    var data_filter = jsonObj.filter( element => element.iso_a3 == countryCode); //filter to find matching country
-    data_filter = Object.values(data_filter);
-    let bigMacData = data_filter[data_filter.length - 1]; //get most recent data in file
-    let localPrice = bigMacData.local_price; //make string of results
-    let currencyCode = bigMacData.currency_code;
-    let dollarPrice = bigMacData.dollar_price;
-    let adjPrice = bigMacData.adj_price;
-    let lastUpdated = bigMacData.date;
-    dollarPrice = parseFloat(dollarPrice).toFixed(2); //round proces to 2 decimals
-    adjPrice = parseFloat(adjPrice).toFixed(2);
-    let bigMacString = "Local Price: " + localPrice + " " + currencyCode + "\n";
-    bigMacString += "USD Price: " + dollarPrice + " USD\n";
-    bigMacString += "GDP Adjusted Price: " + adjPrice + " USD\n";
-    bigMacString += "Last Updated: " + lastUpdated + "\n";
-    localStorage.setItem("bigMacResult",bigMacString);
-    console.log(bigMacString)
-    
-}
-
-//convert a csv file to json
-async function convertCSVtoJSON(filename){
-    console.log("read:",filename);
-    let csvPath = path.resolve(__dirname, filename);
-    console.log("read path:",csvPath);
-    const file = fs.createReadStream(csvPath);
-    var count = 0; // cache the running count
-    csvString = "";
-    console.log("parse");
-    return new Promise((resolve,reject) => { //for async
-    papa.parse(file, {
-        worker: true, // Don't bog down the main thread if its a big file
-        step: function(result) { //read csv data line by line
-            // do stuff with result
-            for(let i = 0; i < result.data.length; i++){
-                //console.log(result.data[i])
-                csvString += (result.data[i] + ",");
-            }
-            csvString += '\n';
-            count += 1;
-            
-        },
-        complete: function(results, file) { //convert csv data to json 
-            console.log('parsing complete read', count, 'records.'); 
-            //console.log(csvString);
-            //resolve(csvString);
-            let testy = papa.parse(csvString,{ //json conversion
-                delimiter: "", // auto-detect 
-                newline: "", // auto-detect 
-                quoteChar: '"', 
-                escapeChar: '"', 
-                header: true, // creates array of {head:value} 
-                dynamicTyping: false, // convert values to numbers if possible
-                skipEmptyLines: true 
-              }); 
-            //console.log(testy.data)
-            resolve(testy.data);
-        }
-    });
-    });
-    console.log("done");
-    //return csvString;
 }
   
 function getCountryCode(){
@@ -597,9 +445,15 @@ function getDatesAsDate(){
     return [startDateStr, endDateStr, dateToString(lastYearStart), dateToString(lastYearEnd)];
 }
 
+function convertToUSdate(dateString){
+    let dateArray = dateString.split("-");
+    return dateArray[1] + "/" + dateArray[2] + "/" + dateArray[0];
+}
+
 async function progressBar(loadTime){
     let bar = document.getElementById("loadingbar");
     let barWidth = 0;
+    bar.style.width = barWidth.toString() + "%";
     while(barWidth < 100){
         await new Promise(r => setTimeout(r, loadTime/1000));
         barWidth += 1;
