@@ -81,15 +81,37 @@ async function getCityData(searchCity, countryCode){
         const resp = response.data;
         let idx = 0;
         console.log("name:", resp.data[idx].name);
-        console.log("state/province:", resp.data[idx].region);
+        //console.log("state/province:", resp.data[idx].region);
         cityLat = resp.data[idx].latitude;
-        console.log("lat:", cityLat);
+        //console.log("lat:", cityLat);
         cityLon = resp.data[idx].longitude;
-        console.log("lon:", cityLon);
-        console.log("population:", resp.data[idx].population);
+        //console.log("lon:", cityLon);
+        //console.log("population:", resp.data[idx].population);
+        //make coordinates show N/S or W/E
+        let cityLatStr = "";
+        let cityLonStr= "";
+        //make string for latitude
+        if(cityLat < 0){ //S
+            cityLatStr += Math.abs(cityLat).toFixed(4).toString();
+            cityLatStr += "° S";
+        }else{ //N
+            cityLatStr += cityLat.toFixed(4).toString();
+            cityLatStr += "° N";
+        }
+
+        //make string for longtitude
+        if(cityLon < 0){ //W
+            cityLonStr += Math.abs(cityLon).toFixed(4).toString();
+            cityLonStr += "° W";
+        }else{ //N
+            cityLonStr += cityLon.toFixed(4).toString();
+            cityLonStr += "° E";
+        }
+        
+        //make HTML for city data display
         let cityResult = "<h1 class=\"display-2\" style=\"text-align: center;\">" + resp.data[idx].name + "</h1>\n";
+        cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\"> Coordinates: " + cityLatStr + ", " + cityLonStr  + "</h4>\n";
         cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\"> State/ Province: " + resp.data[idx].region  + "</h4>\n";
-        cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\">" + cityLat.toFixed(4) + ", " + cityLon.toFixed(4)  + "</h4>\n";
         cityResult += "<h4 class=\"display-3\" style=\"text-align: center;\"> Population: " + resp.data[idx].population + "</h4>\n"
         localStorage.setItem("cityResult", cityResult);
     }).catch(function (error) {
@@ -368,43 +390,6 @@ async function getResult(){
     setTimeout(() => { window.open('results.html','_self').focus();}, 4000);
 }
 
-async function weatherTest(){
-    let weatherString = "";
-    let high = [43.4, 67.9, 23.6];
-    let low = [41.4, 61.9, 21.6];
-    let date = ['1/01/2022', '1/02/2022', '1/03/2022'];
-    let precip = [0, 0.2, 0.76];
-    for(let i = 0; i < date.length; i++){
-        let thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        if(high[i] >= 90){
-            thermometer = "<img src=\"veryhotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        }
-        else if(high[i] >= 80){
-            thermometer = "<img src=\"hotThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        }
-        else if(high[i] >= 60){
-            thermometer = "<img src=\"mediumThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        }
-        else if(low[i] <= 30){
-            thermometer = "<img src=\"coldThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        }
-        else if(low[i] <= 40){
-            thermometer = "<img src=\"coolThermometer_transparent.png\" style=\"width:100px;height:300px;margin-left:60px\">"
-        }
-
-        weatherString += "<div class = \"row\" style = \"background-color: white; margin:50px;\"> <div class = \"col-md-4 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-8\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
-
-        //TODO: make progress bar work
-        /*
-        let percipBar = 100*(precip[i]/2);
-        weatherString += "<div class = \"row\"> <div class = \"col-md-6 d-flex justify-content-center\"> <h1 class=\"display-6\">" + date[i] + " </h1></div> <div class = \"col-md-6\"> <h1 class=\"display-6\">" + low[i] + " - " + high[i] + thermometer + "</h1></div></div>";
-        weatherString += "<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"" + percipBar + "\" aria-valuemin=\"0\" aria-valuemax=\"100\">Precipitation Bar</div>";
-        */
-    }
-    console.log(weatherString);
-    localStorage.setItem("weatherResult", weatherString);
-    
-}
   
 function getCountryCode(){
     let countryCode = document.getElementById("country").value;
@@ -466,5 +451,3 @@ async function resultsButton(){
     location.href = 'index.html';
     localStorage.clear();
 }
-
-
